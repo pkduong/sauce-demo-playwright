@@ -6,9 +6,14 @@
     "test:firefox": "playwright test --project=firefox",
     "test:chrome": "playwright test --project=chromium",
     "test:safari": "playwright test --project=webkit",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "changelog": "node scripts/changelog.js"
   },
   "devDependencies": {
+    "@octokit/rest": "^22.0.1",
     "@playwright/test": "^1.57.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
   }
 }
