@@ -216,9 +216,18 @@ jobs:
           <h1>Allure Reports</h1>
           <p><a href="./latest/">Latest</a> | <a href="./runs/">Runs</a></p>
           EOF
-
+          # ====== GIT PUSH ======
+          cd site
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Make sure we are on a real local branch named gh-pages
+
+          git fetch origin gh-pages || true
+          git checkout -B gh-pages
+
+          # Now sync with remote (avoid reject)
+          git pull --rebase origin gh-pages || true
+
           git add docs/allure docs/index.html docs/.nojekyll
           git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER][$SAFE_TAG]" || echo "Nothing to commit"
-          git push origin gh-pages
+          git push -u origin gh-pages
