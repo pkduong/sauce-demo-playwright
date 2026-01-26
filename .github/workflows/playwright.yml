@@ -26,6 +26,9 @@ permissions:
 
 jobs:
   test:
+    concurrency:
+      group: gh-pages-publish
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -93,80 +96,6 @@ jobs:
         if: always()
         run: npm run allure:generate
 
-      # 3) Publish: latest overwrite + keep runs snapshot + landing pages
-      - name: Publish Allure report to docs (latest + runs + history)
-        if: always()
-        run: |
-          RUN_KEY="${{ github.run_number }}-${{ github.run_id }}"
-          BROWSER="${{ inputs.browser }}"
-          SAFE_TAG="${{ env.SAFE_TAG }}"
-
-          # Ensure Jekyll is disabled
-          mkdir -p docs
-          touch docs/.nojekyll
-
-          # Landing for root
-          cat > docs/index.html << 'EOF'
-          <!doctype html><meta charset="utf-8" />
-          <title>Reports</title>
-          <h1>Reports</h1>
-          <ul>
-            <li><a href="./allure/">Allure Reports</a></li>
-          </ul>
-          EOF
-
-          # Landing for /allure (redirect to latest)
-          mkdir -p docs/allure
-          cat > docs/allure/index.html << 'EOF'
-          <!doctype html><meta charset="utf-8" />
-          <meta http-equiv="refresh" content="0; url=./latest/" />
-          <title>Allure</title>
-          <p>Redirecting to <a href="./latest/">latest</a>...</p>
-          EOF
-
-          # Latest per browser/tag (overwrite)
-          LATEST_DIR="docs/allure/latest/$BROWSER/$SAFE_TAG"
-          rm -rf "$LATEST_DIR"
-          mkdir -p "$LATEST_DIR"
-          cp -R allure-report/. "$LATEST_DIR/"
-
-          # Snapshot per run (keep)
-          RUN_DIR="docs/allure/runs/$RUN_KEY/$BROWSER/$SAFE_TAG"
-          rm -rf "$RUN_DIR"
-          mkdir -p "$RUN_DIR"
-          cp -R allure-report/. "$RUN_DIR/"
-
-          # Optional: keep a small HTML pointer to current run
-          cat > docs/allure/latest/$BROWSER/$SAFE_TAG/_run.html << EOF
-          <!doctype html><meta charset="utf-8" />
-          <p>Run: <a href="../../../runs/$RUN_KEY/$BROWSER/$SAFE_TAG/">$RUN_KEY</a></p>
-          EOF
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs
-          git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER][$SAFE_TAG]" || echo "Nothing to commit"
-          git push origin HEAD:gh-pages
-
-          # Build runs index (list latest runs on top)
-          RUNS_INDEX="docs/allure/runs/index.html"
-          mkdir -p docs/allure/runs
-
-          echo '<!doctype html><meta charset="utf-8">' > $RUNS_INDEX
-          echo '<title>Allure Runs</title>' >> $RUNS_INDEX
-          echo '<h1>Allure – Test Runs</h1>' >> $RUNS_INDEX
-          echo '<p><a href="../latest/">← Back to Latest</a></p>' >> $RUNS_INDEX
-          echo '<ul>' >> $RUNS_INDEX
-
-          # List runs (newest first)
-          for d in $(ls -1 docs/allure/runs | sort -r); do
-            if [ "$d" != "index.html" ]; then
-              echo "  <li><a href=\"./$d/\">Run $d</a></li>" >> $RUNS_INDEX
-            fi
-          done
-
-          echo '</ul>' >> $RUNS_INDEX
-
       # Artifacts (optional but useful)
       - name: Upload Playwright HTML report
         if: always()
@@ -198,69 +127,7 @@ jobs:
         with:
           ref: gh-pages
           path: site
-      - name: Publish Allure report to gh-pages (latest + runs + history)
-        if: always()
-        run: |
-          RUN_KEY="${{ github.run_number }}-${{ github.run_id }}"
-          BROWSER="${{ inputs.browser }}"
-          SAFE_TAG="${{ env.SAFE_TAG }}"
-
-          # Work in gh-pages workspace
-          cd site
-
-          mkdir -p docs
-          touch docs/.nojekyll
-
-          # Latest
-          LATEST_DIR="docs/allure/latest/$BROWSER/$SAFE_TAG"
-          rm -rf "$LATEST_DIR"
-          mkdir -p "$LATEST_DIR"
-          cp -R ../allure-report/. "$LATEST_DIR/"
-
-          # Runs snapshot
-          RUN_DIR="docs/allure/runs/$RUN_KEY/$BROWSER/$SAFE_TAG"
-          rm -rf "$RUN_DIR"
-          mkdir -p "$RUN_DIR"
-          cp -R ../allure-report/. "$RUN_DIR/"
-
-          # Root landing
-          cat > docs/index.html << 'EOF'
-          <!doctype html><meta charset="utf-8" />
-          <title>Reports</title>
-          <h1>Reports</h1>
-          <ul>
-            <li><a href="./allure/">Allure Reports</a></li>
-          </ul>
-          EOF
-
-          # /allure landing -> latest
-          mkdir -p docs/allure
-          cat > docs/allure/index.html << 'EOF'
-          <!doctype html><meta charset="utf-8" />
-          <meta http-equiv="refresh" content="0; url=./latest/" />
-          <title>Allure</title>
-          <p>Redirecting to <a href="./latest/">latest</a>...</p>
-          EOF
-
-          # runs index (auto list)
-          mkdir -p docs/allure/runs
-          RUNS_INDEX="docs/allure/runs/index.html"
-          echo '<!doctype html><meta charset="utf-8">' > $RUNS_INDEX
-          echo '<title>Allure Runs</title><h1>Allure – Test Runs</h1>' >> $RUNS_INDEX
-          echo '<p><a href="../latest/">← Back to Latest</a></p><ul>' >> $RUNS_INDEX
-          for d in $(ls -1 docs/allure/runs | sort -r); do
-            if [ "$d" != "index.html" ]; then
-              echo "  <li><a href=\"./$d/\">Run $d</a></li>" >> $RUNS_INDEX
-            fi
-          done
-          echo '</ul>' >> $RUNS_INDEX
-
-          # Commit + push to gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs
-          git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER][$SAFE_TAG]" || echo "Nothing to commit"
-          git push origin gh-pages
+          fetch-depth: 0
 
       - name: Publish Allure report (latest + runs + history + cleanup)
         if: always()
@@ -354,4 +221,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/allure docs/index.html docs/.nojekyll
           git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER][$SAFE_TAG]" || echo "Nothing to commit"
-          git push origin HEAD:gh-pages
+          git push origin gh-pages
