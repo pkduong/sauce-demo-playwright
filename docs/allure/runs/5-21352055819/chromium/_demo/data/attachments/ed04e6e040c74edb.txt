@@ -1,0 +1,22 @@
+[2026-01-26T09:08:56.874Z] Navigating to: /
+[2026-01-26T09:08:57.212Z] Current URL: https://www.saucedemo.com/
+[2026-01-26T09:08:57.247Z] Login page loaded
+[2026-01-26T09:08:57.248Z] Login with username: standard_user
+[2026-01-26T09:08:57.397Z] Product page title: Products
+[2026-01-26T09:08:57.432Z] Product page title: Products
+[2026-01-26T09:08:57.462Z] Found 6 products
+PRODUCTS:  [
+  { name: 'Sauce Labs Backpack', price: '$29.99' },
+  { name: 'Sauce Labs Bike Light', price: '$9.99' },
+  { name: 'Sauce Labs Bolt T-Shirt', price: '$15.99' },
+  { name: 'Sauce Labs Fleece Jacket', price: '$49.99' },
+  { name: 'Sauce Labs Onesie', price: '$7.99' },
+  { name: 'Test.allTheThings() T-Shirt (Red)', price: '$15.99' }
+]
+[2026-01-26T09:08:57.546Z] Adding product to cart: Sauce Labs Backpack
+[2026-01-26T09:08:57.590Z] Opening cart
+[2026-01-26T09:08:57.650Z] Cart page title: Your Cart
+[2026-01-26T09:08:57.667Z] Cart qty: 1
+[2026-01-26T09:08:57.667Z] Cart desc: carry.allTheThings() with the sleek, streamlined S...)
+[2026-01-26T09:08:57.685Z] Button enable? remove=true, checkout=true, continue=true
+[2026-01-26T09:08:57.688Z] Removing first item from cart
