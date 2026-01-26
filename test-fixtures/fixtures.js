@@ -33,4 +33,17 @@ const test = base.extend({
 
 });
 
+test.afterEach(async ({ page }, testInfo) => {
+    if (
+        testInfo.status !== testInfo.expectedStatus &&
+        page && !page.isClosed()
+    ) {
+        await testInfo.attach("Failure screenshot", {
+            body: await page.screenshot(),
+            contentType: "image/png",
+        });
+    }
+});
+
+
 module.exports = { test };
