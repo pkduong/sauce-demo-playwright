@@ -14,16 +14,16 @@ Automated test framework using Playwright Test + Page Object Model (POM) for htt
 ## Project Structure
 
 ```
-saucedemo-playwright-pom/
 ├─ data/
-│  └─ credentials.json
+│ └─ credentials.json
 ├─ pages/
-│  ├─ BasePage.js
-│  ├─ LoginPage.js
-│  ├─ ProductsPage.js
-│  └─ CartPage.js
+│ ├─ BasePage.js
+│ ├─ LoginPage.js
+│ ├─ ProductsPage.js
+│ └─ CartPage.js
 ├─ tests/
-│  └─ saucedemo.spec.js
+│ ├─ saucedemo.spec.js
+│ └─ allure.spec.js
 ├─ playwright.config.js
 ├─ package.json
 └─ README.md
@@ -31,6 +31,7 @@ saucedemo-playwright-pom/
 
 ## Environment Setup
 - NodeJS version: v22+ 
+- Java JDK v17+ (for Allure Reporter)
 
 ## IDE
 - Visual Studio Code (VS Code)
@@ -40,8 +41,20 @@ saucedemo-playwright-pom/
 1. Install Node.js.
 2. Run `npm install` to install Playwright and dependencies.
 3. Run `npx playwright install` to download browser binaries.
+4. Run `npm install -D allure-playwright` to install Allure Playwright Reporter
+5. Run `npm install -g allure-commandline` to generate & open the report. 
+6. Run `npm i -D rimraf` to support clean shortcut commands (when running `npm run allure` smoothly)
 
-## Running Tests
+## Running Tests for Allure report
+* **Run all tests (Headless, all browser, parallel):**
+`npm run allure:clean; npx playwright test; npm run allure:generate; npm run allure:open;`
+
+- Or use the shortcut commands:
+`npm run allure`
+`npm run allure:generate`
+`npm run allure:open`
+
+## Running Tests for Playwright report 
 * **Run all tests (Headless, all browser, parallel):**
     `npm run test`
 
@@ -58,5 +71,6 @@ saucedemo-playwright-pom/
    
 * **To view the last run report (HTML):**
     `npm run report`
+
 
 
