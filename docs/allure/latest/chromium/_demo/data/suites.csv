@@ -1,0 +1,2 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","940","should login, list products, add/remove cart item, verify cart UI","chromium","2026-01-26","passed","2026-01-26","@demo SauceDemo - Login + Cart flow (POM)","saucedemo.spec.js","",""
