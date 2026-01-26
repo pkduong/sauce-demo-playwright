@@ -18,7 +18,7 @@ on:
       tag:
         description: "Tag/grep (free text). Examples: @product, @login, @cart, @regression, @all"
         required: true
-        default: "@all"
+        default: "@demo"
         type: string
 
 permissions:
@@ -104,25 +104,6 @@ jobs:
           # Ensure Jekyll is disabled
           mkdir -p docs
           touch docs/.nojekyll
-
-          # Landing for root
-          cat > docs/index.html << 'EOF'
-          <!doctype html><meta charset="utf-8" />
-          <title>Reports</title>
-          <h1>Reports</h1>
-          <ul>
-            <li><a href="./allure/">Allure Reports</a></li>
-          </ul>
-          EOF
-
-          # Landing for /allure (redirect to latest)
-          mkdir -p docs/allure
-          cat > docs/allure/index.html << 'EOF'
-          <!doctype html><meta charset="utf-8" />
-          <meta http-equiv="refresh" content="0; url=./latest/" />
-          <title>Allure</title>
-          <p>Redirecting to <a href="./latest/">latest</a>...</p>
-          EOF
 
           # Latest per browser/tag (overwrite)
           LATEST_DIR="docs/allure/latest/$BROWSER/$SAFE_TAG"
