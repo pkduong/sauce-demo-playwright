@@ -1,0 +1,133 @@
+name: Playwright Tests (V3)
+
+on:
+  workflow_dispatch:
+    inputs:
+      workers:
+        description: "Workers (1..3)"
+        required: true
+        default: "2"
+        type: choice
+        options: ["1", "2", "3"]
+      browser:
+        description: "Browser project"
+        required: true
+        default: "chromium"
+        type: choice
+        options: [chromium, firefox, webkit]
+      tag:
+        description: "Tag/grep (free text). Examples: @product, @login, @cart, @regression, @all"
+        required: true
+        default: "@demo"
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Allure generate needs Java
+      - name: Setup Java (for Allure)
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests (with inputs)
+        env:
+          WORKERS: ${{ inputs.workers }}
+          BROWSER: ${{ inputs.browser }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          echo "Workers=$WORKERS | Browser=$BROWSER | Tag=$TAG"
+          CMD="npx playwright test --workers=$WORKERS --project=$BROWSER"
+
+          if [ "$TAG" = "@all" ] || [ -z "$TAG" ]; then
+            echo "Run ALL tests (no grep)"
+          else
+            echo "Run with grep: $TAG"
+            CMD="$CMD --grep \"$TAG\""
+          fi
+
+          echo "Running: $CMD"
+          eval $CMD
+
+      # Generate Allure HTML report (always run even if tests fail)
+      - name: Generate Allure report
+        if: always()
+        run: |
+          # Using your existing script (recommended)
+          npm run allure:generate
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ inputs.browser }}-${{ inputs.tag }}
+          path: playwright-report
+          retention-days: 7
+
+      - name: Upload Allure report (HTML)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-${{ inputs.browser }}-${{ inputs.tag }}
+          path: allure-report
+          retention-days: 7
+
+      - name: Upload Allure results (raw)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ inputs.browser }}-${{ inputs.tag }}
+          path: allure-results
+          retention-days: 7
+
+      # Publish Allure report to GitHub Pages
+      - name: Configure Pages
+        if: always()
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact (Allure report)
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
+
+  deploy:
+    if: always()
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -14,7 +14,7 @@ const { LoginPage } = require("../pages/LoginPage");
 const { ProductsPage } = require("../pages/ProductsPage");
 const { CartPage } = require("../pages/CartPage");
 
-test.describe("SauceDemo - Login + Cart flow (POM)", () => {
+test.describe("@demo SauceDemo - Login + Cart flow (POM)", () => {
     test("should login, list products, add/remove cart item, verify cart UI",
         async ({ page, loggedIn, productsPage, cartPage }) => {
             //loggedIn no need to call out, listed there in param list fair-enough for fixture running
