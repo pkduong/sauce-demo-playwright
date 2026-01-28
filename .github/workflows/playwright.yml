@@ -192,7 +192,7 @@ jobs:
             echo '<ul>'
             for d in $(ls -1dt "$RUNS_ROOT"/*/ 2>/dev/null | head -n $KEEP_RUNS); do
               run=$(basename "$d")
-              echo "<li><a href=\"./$run/\">$run</a></li>"
+              echo "<li><a href=\"./$run/$BROWSER/$SAFE_TAG/\">$run</a></li>"
             done
             echo '</ul>'
           } > "$RUNS_ROOT/index.html"
@@ -215,6 +215,14 @@ jobs:
           <title>Allure Reports</title>
           <h1>Allure Reports</h1>
           <p><a href="./latest/">Latest</a> | <a href="./runs/">Runs</a></p>
+          EOF
+
+          # Create landing index for each run key (avoid 404)
+          cat > "$RUNS_ROOT/$RUN_KEY/index.html" << EOF
+          <!doctype html><meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=./$BROWSER/$SAFE_TAG/">
+          <title>Allure Run $RUN_KEY</title>
+          <p>Redirecting to <a href="./$BROWSER/$SAFE_TAG/">report</a>...</p>
           EOF
 
           # ---- commit & push ----
