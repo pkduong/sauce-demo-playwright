@@ -1,71 +1,112 @@
-# 📊 Playwright Allure Reports
+# 📊 Playwright + Allure Reports (GitHub Pages)
 
-This branch (`gh-pages`) hosts **Allure Test Reports** generated automatically from the Playwright CI/CD pipeline.
-
-Reports are published using **GitHub Actions** and served via **GitHub Pages**.
+This repository publishes **Allure Test Reports** generated from the Playwright CI/CD workflow to **GitHub Pages** (branch: `gh-pages`).
 
 ---
 
-## 🌐 How to View the Reports
+## 🌐 Live Reports Link (Entry Point)
 
-### 🔹 Entry Point
-Open the main report index here:
+Open the reports home:
 
-👉 **[https://<your-github-username>.github.io/<repo-name>/](https://pkduong.github.io/sauce-demo-playwright/)**
+👉 **https://pkduong.github.io/sauce-demo-playwright/docs/**
 
-From there, you can navigate to:
-- **Latest report**
-- **Historical runs**
+From there you can navigate to:
+- **Latest** (most recent execution)
+- **Runs** (history list of executions)
 
 ---
 
-### 🔹 Latest Report
-Shows the **most recent execution result** (overwritten on every run):
+## 🧭 URL Structure (Updated)
+
+### ✅ Latest report (overwritten every run)
 
 ```
-/allure/latest/<browser>/<tag>/
+/docs/allure/latest/<browser>/<tag>/
 ```
 
 Example:
+
 ```
-/allure/latest/chromium/demo/
+/docs/allure/latest/chromium/@product/
+```
+
+> Notes:
+> - `<browser>` is one of: `chromium`, `firefox`, `webkit`
+> - `<tag>` comes from your workflow input `tag` (sanitized to be URL-safe)
+
+---
+
+### ✅ Historical runs (immutable snapshots)
+
+Each CI run is stored under a unique **run key**:
+
+```
+/docs/allure/runs/<run-key>/<browser>/<tag>/
+```
+
+Example:
+
+```
+/docs/allure/runs/12-1234567890/chromium/@product/
 ```
 
 ---
 
-### 🔹 Historical Runs
-Each CI execution is stored as an immutable snapshot:
+### ✅ Runs index (list of latest runs)
+
+A listing page is generated automatically:
 
 ```
-/allure/runs/<run-key>/<browser>/<tag>/
+/docs/allure/runs/index.html
 ```
+
+Direct link:
+
+👉 **https://pkduong.github.io/sauce-demo-playwright/docs/allure/runs/**
 
 ---
 
-## 🧠 Report Retention Policy
+## 🧠 Retention Policy
 
-- Only the **latest 20 runs** are kept
-- `latest/` is overwritten every run
-- Older runs are cleaned automatically
+- Only the **latest 20 run folders** are kept under `runs/`
+- `latest/` is overwritten on every run
+- Older run folders are automatically removed
 
 ---
 
-## 🛠 How Reports Are Generated
+## 🛠 How the Workflow Publishes Reports (New Logic)
 
-1. Playwright tests run in CI
-2. Allure results are produced
-3. History is restored
-4. Allure report is generated
-5. Reports are published to `gh-pages`
+1. Run Playwright tests in CI (with inputs: workers, browser, tag)
+2. Checkout `gh-pages` into a dedicated folder (e.g. `site/`)
+3. Restore `history/` from:
+
+   ```
+   site/docs/allure/latest/<browser>/<tag>/history
+   ```
+
+4. Generate Allure report (`allure-report/`)
+5. Publish to GitHub Pages (`gh-pages`) in the correct location:
+
+   - Latest:
+     ```
+     site/docs/allure/latest/<browser>/<tag>/
+     ```
+   - Snapshot run:
+     ```
+     site/docs/allure/runs/<run-key>/<browser>/<tag>/
+     ```
+   - Runs index:
+     ```
+     site/docs/allure/runs/index.html
+     ```
 
 ---
 
 ## ⚙️ Notes
 
-- This branch is auto-managed by GitHub Actions
-- Do not edit report files manually
-- `.nojekyll` is required for Allure
+- `gh-pages` is auto-managed by GitHub Actions — **do not edit report files manually**
+- `.nojekyll` is used so Allure assets/folders render correctly on GitHub Pages
 
 ---
 
-Happy testing!
+Happy testing! ✅
