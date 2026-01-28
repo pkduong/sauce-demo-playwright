@@ -6,3 +6,4 @@ allure-report/
 .DS_Store
 *.log
 .env
+package-lock.json
