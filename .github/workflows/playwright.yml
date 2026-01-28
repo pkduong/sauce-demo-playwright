@@ -153,6 +153,19 @@ jobs:
           LATEST_DIR="$SITE_DIR/docs/allure/latest/$BROWSER/$SAFE_TAG"
           RUN_DIR="$RUNS_ROOT/$RUN_KEY/$BROWSER/$SAFE_TAG"
 
+          # ---- go to gh-pages repo clone ----
+          cd "$SITE_DIR"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # ---- SYNC FIRST (important) ----
+          git fetch origin gh-pages
+          git checkout -B gh-pages origin/gh-pages
+          git reset --hard origin/gh-pages
+
+          # ---- back to workspace root to copy generated report ----
+          cd -
+
           mkdir -p "$LATEST_DIR" "$RUN_DIR" "$RUNS_ROOT"
 
           # ---- latest overwrite ----
@@ -170,7 +183,7 @@ jobs:
           ls -1dt */ 2>/dev/null | tail -n +$((KEEP_RUNS+1)) | xargs -r rm -rf
           cd - >/dev/null
 
-          # ---- build runs/index.html (list RUN_KEY folders) ----
+          # ---- build runs/index.html ----
           {
             echo '<!doctype html><meta charset="utf-8">'
             echo '<title>Allure Runs</title>'
@@ -204,16 +217,10 @@ jobs:
           <p><a href="./latest/">Latest</a> | <a href="./runs/">Runs</a></p>
           EOF
 
-          # ---- git push (commit from site/) ----
-          cd site
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Make sure we're exactly on latest remote gh-pages
-          git fetch origin gh-pages
-          git checkout gh-pages
-          git reset --hard origin/gh-pages
-
+          # ---- commit & push ----
+          cd "$SITE_DIR"
           git add docs
           git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER][$SAFE_TAG]" || echo "Nothing to commit"
-          git push origin gh-pages
+
+          # Option A (recommended for generated branch): force-with-lease to avoid non-fast-forward
+          git push --force-with-lease origin gh-pages
