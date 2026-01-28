@@ -99,15 +99,14 @@ jobs:
         if: always()
         env:
           BROWSER: ${{ inputs.browser }}
-          SAFE_TAG: ${{ env.SAFE_TAG }}
         run: |
-          HISTORY_SRC="site/docs/allure/latest/$BROWSER/$SAFE_TAG/history"
+          HISTORY_SRC="site/docs/allure/latest/$BROWSER/history"
           if [ -d "$HISTORY_SRC" ]; then
             echo "Found previous history at: $HISTORY_SRC"
             mkdir -p allure-results/history
             cp -R "$HISTORY_SRC/." allure-results/history/
           else
-            echo "No previous history found (first run for this browser/tag)."
+            echo "No previous history found (first run for this browser)."
           fi
 
       - name: Generate Allure report
@@ -153,8 +152,12 @@ jobs:
 
           SITE_DIR="site"
           RUNS_ROOT="$SITE_DIR/docs/allure/runs"
-          LATEST_DIR="$SITE_DIR/docs/allure/latest/$BROWSER/$SAFE_TAG"
-          RUN_DIR="$RUNS_ROOT/$RUN_KEY/$BROWSER/$SAFE_TAG"
+          #---- LATEST_DIR="$SITE_DIR/docs/allure/latest/$BROWSER/$SAFE_TAG"
+          #---- RUN_DIR="$RUNS_ROOT/$RUN_KEY/$BROWSER/$SAFE_TAG"
+
+          LATEST_DIR="$SITE_DIR/docs/allure/latest/$BROWSER"
+          RUN_DIR="$RUNS_ROOT/$RUN_KEY/$BROWSER"
+
 
           # ---- go to gh-pages repo clone ----
           cd "$SITE_DIR"
@@ -243,6 +246,23 @@ jobs:
           <title>Allure Run $RUN_KEY</title>
           <p>Redirecting to <a href="./$BROWSER/$SAFE_TAG/">run</a>...</p>
           EOF
+
+          # landing for /latest/
+          cat > "$SITE_DIR/docs/allure/latest/index.html" << EOF
+          <!doctype html><meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=./$BROWSER/">
+          <title>Latest Allure</title>
+          <p>Redirecting to <a href="./$BROWSER/">latest</a>...</p>
+          EOF
+
+          # landing for /runs/<RUN_KEY>/
+          cat > "$RUNS_ROOT/$RUN_KEY/index.html" << EOF
+          <!doctype html><meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=./$BROWSER/">
+          <title>Allure Run $RUN_KEY</title>
+          <p>Redirecting to <a href="./$BROWSER/">run</a>...</p>
+          EOF
+
 
 
           # ---- commit & push ----
