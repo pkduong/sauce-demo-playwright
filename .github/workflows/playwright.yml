@@ -87,7 +87,10 @@ jobs:
         env:
           TAG: ${{ inputs.tag }}
         run: |
-          SAFE_TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/_/g')
+          SAFE_TAG=$(echo "$TAG" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed 's/^[@#]\+//; s/[^a-z0-9._-]/_/g; s/^_+//')
+          [ -z "$SAFE_TAG" ] && SAFE_TAG=all
           echo "SAFE_TAG=$SAFE_TAG" >> $GITHUB_ENV
           echo "SAFE_TAG=$SAFE_TAG"
 
@@ -224,6 +227,23 @@ jobs:
           <title>Allure Run $RUN_KEY</title>
           <p>Redirecting to <a href="./$BROWSER/$SAFE_TAG/">report</a>...</p>
           EOF
+
+          # landing for latest/
+          cat > "$SITE_DIR/docs/allure/latest/index.html" << EOF
+          <!doctype html><meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=./$BROWSER/$SAFE_TAG/">
+          <title>Latest Allure</title>
+          <p>Redirecting to <a href="./$BROWSER/$SAFE_TAG/">latest</a>...</p>
+          EOF
+
+          # landing for each run key/
+          cat > "$RUNS_ROOT/$RUN_KEY/index.html" << EOF
+          <!doctype html><meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=./$BROWSER/$SAFE_TAG/">
+          <title>Allure Run $RUN_KEY</title>
+          <p>Redirecting to <a href="./$BROWSER/$SAFE_TAG/">run</a>...</p>
+          EOF
+
 
           # ---- commit & push ----
           cd "$SITE_DIR"
