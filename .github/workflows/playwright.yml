@@ -198,7 +198,7 @@ jobs:
             echo '<ul>'
             for d in $(ls -1dt "$RUNS_ROOT"/*/ 2>/dev/null | head -n $KEEP_RUNS); do
               run=$(basename "$d")
-              echo "<li><a href=\"./$run/$BROWSER/$SAFE_TAG/\">$run</a></li>"
+              echo "<li><a href=\"./$run/$BROWSER/\">$run</a></li>"
             done
             echo '</ul>'
           } > "$RUNS_ROOT/index.html"
