@@ -23,6 +23,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -128,7 +134,19 @@ jobs:
           echo "=== DEBUG: allure-report/history ==="
           ls -la allure-report/history || true
 
-      # Artifacts (optional)
+      - name: Copy Allure report into docs and push (for Pages)
+        if: always()
+        run: |
+          mkdir -p docs/allure/latest
+          rm -rf docs/allure/latest/*
+          cp -R allure-report/. docs/allure/latest/
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/allure
+          git commit -m "Update Allure report" || echo "Nothing to commit"
+          git push origin HEAD:v3_cicd_github
+
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
@@ -162,103 +180,8 @@ jobs:
         run: |
           set -e
 
-          KEEP_RUNS=20
-          RUN_KEY="${{ github.run_number }}-${{ github.run_id }}"
-
-          SITE_DIR="site"
-          RUNS_ROOT="$SITE_DIR/docs/allure/runs"
-          #---- LATEST_DIR="$SITE_DIR/docs/allure/latest/$BROWSER/$SAFE_TAG"
-          #---- RUN_DIR="$RUNS_ROOT/$RUN_KEY/$BROWSER/$SAFE_TAG"
-
-          LATEST_DIR="$SITE_DIR/docs/allure/latest/$BROWSER"
-          RUN_DIR="$RUNS_ROOT/$RUN_KEY/$BROWSER"
-
-
-          # ---- go to gh-pages repo clone ----
-          cd "$SITE_DIR"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # ---- SYNC FIRST (important) ----
-          git fetch origin gh-pages
-          git checkout -B gh-pages origin/gh-pages
-          git reset --hard origin/gh-pages
-
-          # ---- back to workspace root to copy generated report ----
-          cd -
-
-          mkdir -p "$LATEST_DIR" "$RUN_DIR" "$RUNS_ROOT"
-
-          # ---- latest overwrite ----
-          rm -rf "$LATEST_DIR"
-          mkdir -p "$LATEST_DIR"
-          cp -R allure-report/. "$LATEST_DIR/"
-
-          # ---- snapshot run ----
-          rm -rf "$RUN_DIR"
-          mkdir -p "$RUN_DIR"
-          cp -R allure-report/. "$RUN_DIR/"
-
-          # ---- cleanup runs: keep last N RUN_KEY folders ----
-          cd "$RUNS_ROOT"
-          ls -1dt */ 2>/dev/null | tail -n +$((KEEP_RUNS+1)) | xargs -r rm -rf
-          cd - >/dev/null
-
-          # ---- build runs/index.html ----
-          {
-            echo '<!doctype html><meta charset="utf-8">'
-            echo '<title>Allure Runs</title>'
-            echo '<h1>Allure Runs (latest first)</h1>'
-            echo '<p><a href="../">Back</a> | <a href="../latest/">Latest</a></p>'
-            echo '<ul>'
-            for d in $(ls -1dt "$RUNS_ROOT"/*/ 2>/dev/null | head -n $KEEP_RUNS); do
-              run=$(basename "$d")
-              echo "<li><a href=\"./$run/$BROWSER/\">$run</a></li>"
-            done
-            echo '</ul>'
-          } > "$RUNS_ROOT/index.html"
-
-          # ---- root landing pages ----
-          mkdir -p "$SITE_DIR/docs/allure"
-          touch "$SITE_DIR/docs/.nojekyll"
-
-          cat > "$SITE_DIR/docs/index.html" << 'EOF'
-          <!doctype html><meta charset="utf-8">
-          <title>Reports</title>
-          <h1>Reports</h1>
-          <ul>
-            <li><a href="./allure/">Allure Reports</a></li>
-          </ul>
-          EOF
-
-          cat > "$SITE_DIR/docs/allure/index.html" << 'EOF'
-          <!doctype html><meta charset="utf-8">
-          <title>Allure Reports</title>
-          <h1>Allure Reports</h1>
-          <p><a href="./latest/">Latest</a> | <a href="./runs/">Runs</a></p>
-          EOF
-
-
-          # landing for /latest/
-          cat > "$SITE_DIR/docs/allure/latest/index.html" << EOF
-          <!doctype html><meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=./$BROWSER/">
-          <title>Latest Allure</title>
-          <p>Redirecting to <a href="./$BROWSER/">latest</a>...</p>
-          EOF
-
-          # landing for /runs/<RUN_KEY>/
-          cat > "$RUNS_ROOT/$RUN_KEY/index.html" << EOF
-          <!doctype html><meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=./$BROWSER/">
-          <title>Allure Run $RUN_KEY</title>
-          <p>Redirecting to <a href="./$BROWSER/">run</a>...</p>
-          EOF
-
-          # ---- commit & push ----
-          cd "$SITE_DIR"
-          git add docs
-          git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER]" || echo "Nothing to commit"
-
-          # Option A (recommended for generated branch): force-with-lease to avoid non-fast-forward
-          git push --force-with-lease origin gh-pages
+      - name: Upload Pages artifact (Allure report)
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
