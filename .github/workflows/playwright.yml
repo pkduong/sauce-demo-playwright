@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout
+      - name: Checkout (main)
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -42,7 +42,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      # Allure generate needs Java
       - name: Setup Java (for Allure)
         uses: actions/setup-java@v4
         with:
@@ -74,15 +73,32 @@ jobs:
           echo "Running: $CMD"
           eval $CMD
 
-      # 1) Bring previous history (trend) into current allure-results BEFORE generate
+      # Checkout gh-pages so we can restore history + publish into the correct folder (site/)
+      - name: Checkout gh-pages (report branch)
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: site
+          fetch-depth: 0
+
+      - name: Prepare SAFE_TAG
+        if: always()
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          SAFE_TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/_/g')
+          echo "SAFE_TAG=$SAFE_TAG" >> $GITHUB_ENV
+          echo "SAFE_TAG=$SAFE_TAG"
+
+      # Restore history from gh-pages (site/) into allure-results BEFORE generating report
       - name: Restore Allure history (trending)
         if: always()
+        env:
+          BROWSER: ${{ inputs.browser }}
+          SAFE_TAG: ${{ env.SAFE_TAG }}
         run: |
-          # sanitize tag => folder-safe
-          SAFE_TAG=$(echo "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/_/g')
-          echo "SAFE_TAG=$SAFE_TAG" >> $GITHUB_ENV
-
-          HISTORY_SRC="docs/allure/latest/${{ inputs.browser }}/$SAFE_TAG/history"
+          HISTORY_SRC="site/docs/allure/latest/$BROWSER/$SAFE_TAG/history"
           if [ -d "$HISTORY_SRC" ]; then
             echo "Found previous history at: $HISTORY_SRC"
             mkdir -p allure-results/history
@@ -91,12 +107,11 @@ jobs:
             echo "No previous history found (first run for this browser/tag)."
           fi
 
-      # 2) Generate Allure HTML report (includes history if restored)
       - name: Generate Allure report
         if: always()
         run: npm run allure:generate
 
-      # Artifacts (optional but useful)
+      # Artifacts (optional)
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
@@ -121,41 +136,24 @@ jobs:
           path: allure-results
           retention-days: 7
 
-      - name: Checkout gh-pages (report branch)
-        if: always()
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          path: site
-          fetch-depth: 0
-
-      - name: Publish Allure report (latest + runs + history + cleanup)
+      - name: Publish Allure report (latest + runs + index + cleanup)
         if: always()
         env:
           TAG: ${{ inputs.tag }}
           BROWSER: ${{ inputs.browser }}
+          SAFE_TAG: ${{ env.SAFE_TAG }}
         run: |
           set -e
 
-          # ====== CONFIG: keep how many latest runs ======
           KEEP_RUNS=20
-
-          # sanitize tag => safe folder name
-          SAFE_TAG=$(echo "$TAG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/_/g')
-
           RUN_KEY="${{ github.run_number }}-${{ github.run_id }}"
-          LATEST_DIR="docs/allure/latest/$BROWSER/$SAFE_TAG"
-          RUN_DIR="docs/allure/runs/$RUN_KEY/$BROWSER/$SAFE_TAG"
 
-          mkdir -p docs/allure/latest docs/allure/runs
+          SITE_DIR="site"
+          RUNS_ROOT="$SITE_DIR/docs/allure/runs"
+          LATEST_DIR="$SITE_DIR/docs/allure/latest/$BROWSER/$SAFE_TAG"
+          RUN_DIR="$RUNS_ROOT/$RUN_KEY/$BROWSER/$SAFE_TAG"
 
-          # ---- reuse history so trends not reset ----
-          if [ -d "$LATEST_DIR/history" ]; then
-            echo "Reuse history from $LATEST_DIR/history"
-            mkdir -p allure-results/history
-            cp -R "$LATEST_DIR/history/." allure-results/history/ || true
-            npm run allure:generate
-          fi
+          mkdir -p "$LATEST_DIR" "$RUN_DIR" "$RUNS_ROOT"
 
           # ---- latest overwrite ----
           rm -rf "$LATEST_DIR"
@@ -167,39 +165,30 @@ jobs:
           mkdir -p "$RUN_DIR"
           cp -R allure-report/. "$RUN_DIR/"
 
-          # ====== (C1) cleanup: keep only last N runs ======
-          # Sort by folder modified time (newest first), delete the rest
-          if [ -d "docs/allure/runs" ]; then
-            echo "Cleanup runs: keep last $KEEP_RUNS"
-            cd docs/allure/runs
-            # list directories newest->oldest, skip first KEEP_RUNS, delete remaining
-            ls -1dt */ 2>/dev/null | tail -n +$((KEEP_RUNS+1)) | xargs -r rm -rf
-            cd - >/dev/null
-          fi
+          # ---- cleanup runs: keep last N RUN_KEY folders ----
+          cd "$RUNS_ROOT"
+          ls -1dt */ 2>/dev/null | tail -n +$((KEEP_RUNS+1)) | xargs -r rm -rf
+          cd - >/dev/null
 
-          # ====== (C1) build runs/index.html (list latest runs) ======
-          mkdir -p docs/allure/runs
+          # ---- build runs/index.html (list RUN_KEY folders) ----
           {
             echo '<!doctype html><meta charset="utf-8">'
             echo '<title>Allure Runs</title>'
             echo '<h1>Allure Runs (latest first)</h1>'
             echo '<p><a href="../">Back</a> | <a href="../latest/">Latest</a></p>'
             echo '<ul>'
-
-            # show newest first, limit to KEEP_RUNS (same as cleanup)
-            for d in $(ls -1dt docs/allure/runs/*/ 2>/dev/null | head -n $KEEP_RUNS); do
+            for d in $(ls -1dt "$RUNS_ROOT"/*/ 2>/dev/null | head -n $KEEP_RUNS); do
               run=$(basename "$d")
-              # Link to this run's landing (you can point to browser/tag path if you want)
               echo "<li><a href=\"./$run/\">$run</a></li>"
             done
-
             echo '</ul>'
-          } > docs/allure/runs/index.html
+          } > "$RUNS_ROOT/index.html"
 
-          # Root landing for /docs
-          mkdir -p docs
-          touch docs/.nojekyll
-          cat > docs/index.html << 'EOF'
+          # ---- root landing pages ----
+          mkdir -p "$SITE_DIR/docs/allure"
+          touch "$SITE_DIR/docs/.nojekyll"
+
+          cat > "$SITE_DIR/docs/index.html" << 'EOF'
           <!doctype html><meta charset="utf-8">
           <title>Reports</title>
           <h1>Reports</h1>
@@ -208,26 +197,18 @@ jobs:
           </ul>
           EOF
 
-          # Allure landing
-          mkdir -p docs/allure
-          cat > docs/allure/index.html << 'EOF'
+          cat > "$SITE_DIR/docs/allure/index.html" << 'EOF'
           <!doctype html><meta charset="utf-8">
           <title>Allure Reports</title>
           <h1>Allure Reports</h1>
           <p><a href="./latest/">Latest</a> | <a href="./runs/">Runs</a></p>
           EOF
-          # ====== GIT PUSH ======
+
+          # ---- git push (commit from site/) ----
           cd site
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Make sure we are on a real local branch named gh-pages
 
-          git fetch origin gh-pages || true
-          git checkout -B gh-pages
-
-          # Now sync with remote (avoid reject)
-          git pull --rebase origin gh-pages || true
-
-          git add docs/allure docs/index.html docs/.nojekyll
+          git add docs
           git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER][$SAFE_TAG]" || echo "Nothing to commit"
-          git push -u origin gh-pages
+          git push origin gh-pages
