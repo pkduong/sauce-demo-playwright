@@ -100,18 +100,33 @@ jobs:
         env:
           BROWSER: ${{ inputs.browser }}
         run: |
-          HISTORY_SRC="site/docs/allure/latest/$BROWSER/history"
-          if [ -d "$HISTORY_SRC" ]; then
-            echo "Found previous history at: $HISTORY_SRC"
+          set -e
+
+          # Prefer restoring from the newest run snapshot (most reliable), then fallback to latest
+          NEWEST_RUN_HISTORY="$(ls -1dt site/docs/allure/runs/*/$BROWSER/history 2>/dev/null | head -n 1 || true)"
+          LATEST_HISTORY="site/docs/allure/latest/$BROWSER/history"
+
+          if [ -n "$NEWEST_RUN_HISTORY" ] && [ -d "$NEWEST_RUN_HISTORY" ]; then
+            echo "✅ Restore history from newest run: $NEWEST_RUN_HISTORY"
             mkdir -p allure-results/history
-            cp -R "$HISTORY_SRC/." allure-results/history/
+            cp -R "$NEWEST_RUN_HISTORY/." allure-results/history/
+          elif [ -d "$LATEST_HISTORY" ]; then
+            echo "✅ Restore history from latest: $LATEST_HISTORY"
+            mkdir -p allure-results/history
+            cp -R "$LATEST_HISTORY/." allure-results/history/
           else
-            echo "No previous history found (first run for this browser)."
+            echo "ℹ️ No previous history found (first run for this browser)."
           fi
+
+          echo "=== DEBUG: allure-results/history ==="
+          ls -la allure-results/history || true
 
       - name: Generate Allure report
         if: always()
-        run: npm run allure:generate
+        run: |
+          npm run allure:generate
+          echo "=== DEBUG: allure-report/history ==="
+          ls -la allure-report/history || true
 
       # Artifacts (optional)
       - name: Upload Playwright HTML report
@@ -223,29 +238,6 @@ jobs:
           <p><a href="./latest/">Latest</a> | <a href="./runs/">Runs</a></p>
           EOF
 
-          # Create landing index for each run key (avoid 404)
-          cat > "$RUNS_ROOT/$RUN_KEY/index.html" << EOF
-          <!doctype html><meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=./$BROWSER/$SAFE_TAG/">
-          <title>Allure Run $RUN_KEY</title>
-          <p>Redirecting to <a href="./$BROWSER/$SAFE_TAG/">report</a>...</p>
-          EOF
-
-          # landing for latest/
-          cat > "$SITE_DIR/docs/allure/latest/index.html" << EOF
-          <!doctype html><meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=./$BROWSER/$SAFE_TAG/">
-          <title>Latest Allure</title>
-          <p>Redirecting to <a href="./$BROWSER/$SAFE_TAG/">latest</a>...</p>
-          EOF
-
-          # landing for each run key/
-          cat > "$RUNS_ROOT/$RUN_KEY/index.html" << EOF
-          <!doctype html><meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=./$BROWSER/$SAFE_TAG/">
-          <title>Allure Run $RUN_KEY</title>
-          <p>Redirecting to <a href="./$BROWSER/$SAFE_TAG/">run</a>...</p>
-          EOF
 
           # landing for /latest/
           cat > "$SITE_DIR/docs/allure/latest/index.html" << EOF
@@ -263,12 +255,10 @@ jobs:
           <p>Redirecting to <a href="./$BROWSER/">run</a>...</p>
           EOF
 
-
-
           # ---- commit & push ----
           cd "$SITE_DIR"
           git add docs
-          git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER][$SAFE_TAG]" || echo "Nothing to commit"
+          git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER]" || echo "Nothing to commit"
 
           # Option A (recommended for generated branch): force-with-lease to avoid non-fast-forward
           git push --force-with-lease origin gh-pages
