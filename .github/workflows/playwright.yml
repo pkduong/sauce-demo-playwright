@@ -209,6 +209,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Make sure we're exactly on latest remote gh-pages
+          git fetch origin gh-pages
+          git checkout gh-pages
+          git reset --hard origin/gh-pages
+
           git add docs
           git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER][$SAFE_TAG]" || echo "Nothing to commit"
           git push origin gh-pages
