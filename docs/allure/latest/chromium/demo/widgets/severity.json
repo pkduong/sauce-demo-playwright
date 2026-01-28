@@ -1,1 +1,1 @@
-[{"uid":"255d96f150f5f0c1","name":"should login, list products, add/remove cart item, verify cart UI","time":{"start":1769595542783,"stop":1769595543784,"duration":1001},"status":"passed","severity":"normal"}]
+[{"uid":"b48123648be292e9","name":"should login, list products, add/remove cart item, verify cart UI","time":{"start":1769595893296,"stop":1769595894146,"duration":850},"status":"passed","severity":"normal"}]
