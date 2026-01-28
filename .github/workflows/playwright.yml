@@ -32,11 +32,14 @@ concurrency:
 
 jobs:
   test:
+    concurrency:
+      group: gh-pages-publish
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
-      - name: Checkout
+      - name: Checkout (main)
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -45,7 +48,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      # Allure generate needs Java
       - name: Setup Java (for Allure)
         uses: actions/setup-java@v4
         with:
@@ -77,11 +79,60 @@ jobs:
           echo "Running: $CMD"
           eval $CMD
 
-      # Generate Allure HTML report (always run even if tests fail)
+      # Checkout gh-pages so we can restore history + publish into the correct folder (site/)
+      - name: Checkout gh-pages (report branch)
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: site
+          fetch-depth: 0
+
+      - name: Prepare SAFE_TAG
+        if: always()
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          SAFE_TAG=$(echo "$TAG" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed 's/^[@#]\+//; s/[^a-z0-9._-]/_/g; s/^_+//')
+          [ -z "$SAFE_TAG" ] && SAFE_TAG=all
+          echo "SAFE_TAG=$SAFE_TAG" >> $GITHUB_ENV
+          echo "SAFE_TAG=$SAFE_TAG"
+
+      # Restore history from gh-pages (site/) into allure-results BEFORE generating report
+      - name: Restore Allure history (trending)
+        if: always()
+        env:
+          BROWSER: ${{ inputs.browser }}
+        run: |
+          set -e
+
+          # Prefer restoring from the newest run snapshot (most reliable), then fallback to latest
+          NEWEST_RUN_HISTORY="$(ls -1dt site/docs/allure/runs/*/$BROWSER/history 2>/dev/null | head -n 1 || true)"
+          LATEST_HISTORY="site/docs/allure/latest/$BROWSER/history"
+
+          if [ -n "$NEWEST_RUN_HISTORY" ] && [ -d "$NEWEST_RUN_HISTORY" ]; then
+            echo "✅ Restore history from newest run: $NEWEST_RUN_HISTORY"
+            mkdir -p allure-results/history
+            cp -R "$NEWEST_RUN_HISTORY/." allure-results/history/
+          elif [ -d "$LATEST_HISTORY" ]; then
+            echo "✅ Restore history from latest: $LATEST_HISTORY"
+            mkdir -p allure-results/history
+            cp -R "$LATEST_HISTORY/." allure-results/history/
+          else
+            echo "ℹ️ No previous history found (first run for this browser)."
+          fi
+
+          echo "=== DEBUG: allure-results/history ==="
+          ls -la allure-results/history || true
+
       - name: Generate Allure report
         if: always()
         run: |
           npm run allure:generate
+          echo "=== DEBUG: allure-report/history ==="
+          ls -la allure-report/history || true
 
       - name: Copy Allure report into docs and push (for Pages)
         if: always()
@@ -120,10 +171,14 @@ jobs:
           path: allure-results
           retention-days: 7
 
-      # Publish Allure report to GitHub Pages
-      - name: Configure Pages
+      - name: Publish Allure report (latest + runs + index + cleanup)
         if: always()
-        uses: actions/configure-pages@v5
+        env:
+          TAG: ${{ inputs.tag }}
+          BROWSER: ${{ inputs.browser }}
+          SAFE_TAG: ${{ env.SAFE_TAG }}
+        run: |
+          set -e
 
       - name: Upload Pages artifact (Allure report)
         if: always()
