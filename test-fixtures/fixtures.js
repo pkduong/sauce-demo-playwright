@@ -6,7 +6,7 @@ const { CartPage } = require("../pages/CartPage");
 const creds = require("../data/credentials.json");
 
 const test = base.extend({
-    loginpage: async ({ page }, use) => {
+    loginPage: async ({ page }, use) => {
         await use(new LoginPage(page));
     },
 
@@ -18,15 +18,12 @@ const test = base.extend({
         await use(new CartPage(page));
     },
 
-    //logged-in state fixture
-    // Fixture loggedIn đảm bảo vào test là đã login xong.
-    loggedIn: async ({ page }, use) => {
-        const loginPage = new LoginPage(page);
+    // Fixture loggedIn to be used in tests needing a logged-in user
+    loggedIn: async ({ loginPage, productsPage, page }, use) => {
         await loginPage.open();
         await loginPage.login(creds.standard.username, creds.standard.password);
 
-        const productsPage = new ProductsPage(page);
-        await productsPage.assertLoggedIn();
+        await productsPage.waitForProductPage();
 
         await use(page);
     }

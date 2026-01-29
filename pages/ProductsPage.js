@@ -1,35 +1,104 @@
-// Methods:
-// - Verify products page
-// - Get all products with name + price
-// - Add any product
-// - Read cart badge count
-
 const { BasePage } = require("./BasePage");
 
 class ProductsPage extends BasePage {
     constructor(page) {
         super(page);
-        this.title = page.locator(".title"); //page title: Products, use for assertion
-        this.inventoryItems = page.locator(".inventory_item");
-        this.cartLink = page.locator(".shopping_cart_link");
-        this.cartBadge = page.locator(".shopping_cart_badge");
+
+        // page-level selectors
+        this.titleSel = ".title";
+        this.cartLinkSel = ".shopping_cart_link";
+        this.cartBadgeSel = ".shopping_cart_badge";
+
+        // inventory list selectors
+        this.inventoryItemSel = ".inventory_item";
+        this.itemNameSel = ".inventory_item_name";
+        this.itemPriceSel = ".inventory_item_price";
+        this.addBtnSel = 'button:has-text("Add to cart")';
+        this.removeBtnSel = 'button:has-text("Remove")';
+
+        // detail selectors
+        this.detailNameSel = ".inventory_details_name";
+        this.detailPriceSel = ".inventory_details_price";
+        this.detailDescSel = ".inventory_details_desc";
+        this.backToProductsSel = "#back-to-products";
+
+        // locators
+        this.title = this.page.locator(this.titleSel);
+        this.cartLink = this.page.locator(this.cartLinkSel);
+        this.inventoryItems = this.page.locator(this.inventoryItemSel);
+
+        this.detailName = this.page.locator(this.detailNameSel);
+        this.detailPrice = this.page.locator(this.detailPriceSel);
+        this.detailDesc = this.page.locator(this.detailDescSel);
+        this.backToProductsButton = this.page.locator(this.backToProductsSel);
     }
 
-    async assertLoggedIn() {
+    async waitForProductPage() {
         await this.title.waitFor({ state: "visible" });
+        await this.page.waitForURL(/inventory\.html/);
+    }
 
-        const pageTitle = (await this.title.textContent());
-        this.log(`Product page title: ${pageTitle}`);
+    async openCart() {
+        await Promise.all([
+            this.page.waitForURL(/cart\.html/),
+            this.cartLink.click(),
+        ]);
+    }
 
-        await this.inventoryItems.first().waitFor({ state: "visible" });
+    // --- product finder + item wrapper ---
+    productItemByNameContains(name) {
+        // filter inventory_item by text in itemNameSel
+        return this.inventoryItems
+            .filter({ has: this.page.locator(this.itemNameSel, { hasText: name }) })
+            .first();
+    }
+
+    async findProductByNameContains(name) {
+        const item = this.productItemByNameContains(name);
+        await item.waitFor({ state: "visible" });
+        return item;
+    }
+
+    getProductItem(itemRoot) {
+        return {
+            root: itemRoot,
+            name: itemRoot.locator(this.itemNameSel),
+            price: itemRoot.locator(this.itemPriceSel),
+            addToCart: itemRoot.locator(this.addBtnSel),
+            remove: itemRoot.locator(this.removeBtnSel),
+        };
+    }
+
+    async openProductDetailByNameContains(name) {
+        const item = await this.findProductByNameContains(name);
+        const product = this.getProductItem(item);
+
+        await product.name.click();
+        await this.detailName.waitFor({ state: "visible" });
+    }
+
+    async backToProducts() {
+        await Promise.all([
+            this.page.waitForURL(/inventory\.html/),
+            this.backToProductsButton.click(),
+        ]);
+    }
+
+    async addToCartByNameContains(name) {
+        const item = await this.findProductByNameContains(name);
+        const product = this.getProductItem(item);
+        await product.addToCart.click();
     }
 
     async addFirstProductToCart() {
         const first = this.inventoryItems.first();
-        const name = (await first.locator(".inventory_item_name").textContent());
+        await first.waitFor({ state: "visible" });
+
+        const product = this.getProductItem(first);
+        const name = (await product.name.textContent())?.trim() ?? "";
 
         this.log(`Adding product to cart: ${name}`);
-        await first.locator('button:has-text("Add to cart")').click();
+        await product.addToCart.click();
 
         return name;
     }
@@ -41,24 +110,39 @@ class ProductsPage extends BasePage {
         const products = [];
         for (let i = 0; i < count; i++) {
             const item = this.inventoryItems.nth(i);
-            const name = (await item.locator(".inventory_item_name").textContent());
-            const price = (await item.locator(".inventory_item_price").textContent());
+            const product = this.getProductItem(item);
+
+            const name = (await product.name.textContent())?.trim() ?? "";
+            const price = (await product.price.textContent())?.trim() ?? "";
+
             products.push({ name, price });
         }
         return products;
     }
 
-    async getCartCount() {
-        if (await this.cartBadge.isVisible()) {
-            const txt = (await this.cartBadge.textContent());
-            return Number(txt);
-        }
-        return 0;
+    // --- detail getters used in tests ---
+    async getDetailName() {
+        await this.detailName.waitFor({ state: "visible" });
+        return (await this.detailName.textContent())?.trim() ?? "";
     }
 
-    async openCart() {
-        this.log(`Opening cart`);
-        await this.cartLink.click();
+    async getDetailPrice() {
+        await this.detailPrice.waitFor({ state: "visible" });
+        return (await this.detailPrice.textContent())?.trim() ?? "";
+    }
+
+    async getDetailDesc() {
+        await this.detailDesc.waitFor({ state: "visible" });
+        return (await this.detailDesc.textContent())?.trim() ?? "";
+    }
+
+    async getCartCount() {
+        const badge = this.page.locator(this.cartBadgeSel);
+        if (await badge.count()) {
+            const text = (await badge.textContent())?.trim();
+            return text ? Number(text) : 0;
+        }
+        return 0;
     }
 }
 

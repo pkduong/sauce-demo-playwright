@@ -1,0 +1,81 @@
+const { expect } = require("@playwright/test");
+const { test } = require("../test-fixtures/fixtures");
+
+const PRODUCT_DETAILS = [
+    {
+        name: "Sauce Labs Backpack",
+        price: "$29.99",
+        desc: "Carry all things with the sleek, streamlined Sly Pack that melds uncompromising style with unequaled laptop and tablet protection.",
+    },// expect description mismatch 
+    {
+        name: "Sauce Labs Bike Light",
+        price: "$9.99",
+        desc: "A red light isn't the desired state in testing but it sure helps when riding your bike at night. Water-resistant with 3 lighting modes, 1 AAA battery included.",
+    },
+    {
+        name: "Sauce Labs Bolt T-Shirt",
+        price: "$15.99",
+        desc: "Get your testing superhero on with the Sauce Labs bolt T-shirt. From American Apparel, 100% ringspun combed cotton, heather gray with red bolt.",
+    },
+    {
+        name: "Sauce Labs Fleece Jacket",
+        price: "$49.99",
+        desc: "It's not every day that you come across a midweight quarter-zip fleece jacket capable of handling everything from a relaxing day outdoors to a busy day at the office.",
+    },
+    {
+        name: "Sauce Labs Onesie",
+        price: "$7.99",
+        desc: "Rib snap infant onesie for the junior automation engineer in development. Reinforced 3-snap bottom closure, two-needle hemmed sleeved and bottom won't unravel.",
+    },
+    {
+        name: "T-Shirt (Red)",
+        price: "$15.99",
+        desc: "This classic Sauce Labs t-shirt is perfect to wear when cozying up to your keyboard to automate a few tests. Super-soft and comfy ringspun combed cotton.",
+    }, // expect name mismatch -> should fail twice (list + detail)
+];
+
+test.describe("@product Data-driven - verify product list vs detail (name/price/desc)", () => {
+
+    test("verify product list page: name + price",
+        async ({ page, loggedIn, productsPage }) => {
+
+            for (const tc of PRODUCT_DETAILS) {
+                await test.step(`Verify product list: ${tc.name} - ${tc.price}`, async () => {
+                    const item = await productsPage.findProductByNameContains(tc.name);
+
+                    const product = productsPage.getProductItem(item);
+                    const actualName = (await product.name.textContent());
+                    const actualPrice = (await product.price.textContent());
+
+                    // fail #1 expected here for: "T-Shirt (Red)"
+                    expect.soft(actualName, `[LIST] Check Name matched for "${tc.name}"`).toBe(tc.name);
+                    expect.soft(actualPrice, `[LIST] Check Price matched for "${tc.price}"`).toBe(tc.price);
+                });
+            }
+        });
+
+    test("@product verify product detail page: name + price + description",
+        async ({ page, loggedIn, productsPage }) => {
+
+            for (const tc of PRODUCT_DETAILS) {
+                await test.step(`Verify product detail: ${tc.name}`, async () => {
+
+                    await productsPage.openProductDetailByNameContains(tc.name);
+
+                    const detailName = await productsPage.getDetailName();
+                    const detailPrice = await productsPage.getDetailPrice();
+                    const detailDesc = await productsPage.getDetailDesc();
+
+                    // fail #1 expected here for: "T-Shirt (Red)"
+                    expect.soft(detailName, `[DETAIL] Check Name matched for "${tc.name}"`).toBe(tc.name);
+
+                    expect.soft(detailPrice, `[DETAIL] Check Price matched for "${tc.price}"`).toBe(tc.price);
+
+                    // fail #2 expected here for: "Sauce Labs Backpack" description (carry.allTheThings()...)
+                    expect.soft(detailDesc, `[DETAIL] Check description matched for "${tc.desc}"`).toBe(tc.desc);
+
+                    await productsPage.backToProducts();
+                });
+            }
+        });
+});

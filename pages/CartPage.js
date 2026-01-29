@@ -1,76 +1,82 @@
-// Methods:
-// - Verify quantity + description presence
-// - Verify buttons enabled (Remove / Checkout / Continue Shopping)
-// - Remove product
-// - Get badge/count after removal
-
 const { BasePage } = require("./BasePage");
 
 class CartPage extends BasePage {
-
     constructor(page) {
         super(page);
-        this.cartTitle = page.locator(".title");
-        this.cartItems = page.locator(".cart_item");
 
-        this.qty = page.locator(".cart_quantity");
-        this.description = page.locator(".inventory_item_desc");
+        // page-level selectors
+        this.titleSel = ".title";
+        this.cartItemSel = ".cart_item";
+        this.cartBadgeSel = ".shopping_cart_badge";
 
-        this.removeButton = page.locator('button:has-text("Remove")');
-        this.checkoutButton = page.locator("button#checkout");
-        this.continueShoppingButton = page.locator("button#continue-shopping");
+        // item-level selectors (scoped under cart item root)
+        this.itemQtySel = ".cart_quantity";
+        this.itemDescSel = ".inventory_item_desc";
+        this.itemNameSel = ".inventory_item_name";
+        this.itemRemoveBtnSel = 'button:has-text("Remove")';
 
-        this.cartBadge = page.locator(".shopping_cart_badge");
+        // page buttons
+        this.continueShoppingSel = "#continue-shopping";
+        this.checkoutSel = "#checkout";
+
+        // locators
+        this.title = this.page.locator(this.titleSel);
+        this.cartItems = this.page.locator(this.cartItemSel);
+
+        this.continueShoppingButton = this.page.locator(this.continueShoppingSel);
+        this.checkoutButton = this.page.locator(this.checkoutSel);
     }
 
-    async assertCartPage() {
-        await this.cartTitle.waitFor({ state: "visible" });
-        this.log(`Cart page title: ${await this.cartTitle.textContent()}`);
+    // --- page helpers ---
+    async waitForCartPage() {
+        await this.title.waitFor({ state: "visible" });
+        await this.page.waitForURL(/cart\.html/);
     }
 
-    async assertCartUIEnable() {
-        //Verify button enable
-        await this.removeButton.first().waitFor({ state: "visible" });
+    // --- data getters used by tests ---
+    async getFirstItemQtyAndDescription() {
+        const first = this.cartItems.first();
+        await first.waitFor({ state: "visible" });
 
-        const removeEnabled = await this.removeButton.first().isEnabled();
-        const checkoutEnabled = await this.checkoutButton.first().isEnabled();
-        const continueEnabled = await this.continueShoppingButton.isEnabled();
-
-        this.log(`Button enable? remove=${removeEnabled}, checkout=${checkoutEnabled}, continue=${continueEnabled}`);
-
-        return { removeEnabled, checkoutEnabled, continueEnabled };
-
-    }
-
-    async assertQuantityAndDescriptionPresent() {
-        await this.qty.first().waitFor({ state: "visible" });
-        await this.description.first().waitFor({ state: "visible" });
-
-        const qtyText = (await this.qty.first().textContent());
-        const descText = (await this.description.first().textContent());
-
-        this.log(`Cart qty: ${qtyText}`);
-        this.log(`Cart desc: ${(descText || "").slice(0, 50)}...)`);
+        const qtyText = (await first.locator(this.itemQtySel).textContent())?.trim() ?? "";
+        const descText = (await first.locator(this.itemDescSel).textContent())?.trim() ?? "";
 
         return { qtyText, descText };
     }
 
-    async removeFirstItem() {
-        this.log("Removing first item from cart");
-        await this.removeButton.first().click();
+    async getCartUIEnabledState() {
+        // These buttons exist on cart page; ensure visible first
+        await this.continueShoppingButton.waitFor({ state: "visible" });
+        await this.checkoutButton.waitFor({ state: "visible" });
+
+        const first = this.cartItems.first();
+        await first.waitFor({ state: "visible" });
+
+        const removeEnabled = await first.locator(this.itemRemoveBtnSel).isEnabled();
+        const checkoutEnabled = await this.checkoutButton.isEnabled();
+        const continueEnabled = await this.continueShoppingButton.isEnabled();
+
+        return { removeEnabled, checkoutEnabled, continueEnabled };
     }
 
-    async getCartCount() {
-        if (await this.cartBadge.isVisible()) {
-            const txt = (await this.cartBadge.textContent());
-            return Number(txt);
-        }
-        return 0;
+    async removeFirstItem() {
+        const first = this.cartItems.first();
+        await first.waitFor({ state: "visible" });
+        await first.locator(this.itemRemoveBtnSel).click();
     }
 
     async getItemsCount() {
         return await this.cartItems.count();
     }
+
+    async getCartCount() {
+        const badge = this.page.locator(this.cartBadgeSel);
+        if (await badge.count()) {
+            const text = (await badge.textContent())?.trim();
+            return text ? Number(text) : 0;
+        }
+        return 0;
+    }
 }
 
-module.exports = { CartPage }; 
+module.exports = { CartPage };
