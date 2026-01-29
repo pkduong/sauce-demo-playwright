@@ -1,0 +1,13 @@
+{"ts":"2026-01-29T11:34:49.282Z","msg":"START: goto","url":"about:blank","path":"/"}
+{"ts":"2026-01-29T11:34:49.500Z","msg":"END: goto","url":"https://www.saucedemo.com/","path":"/"}
+{"ts":"2026-01-29T11:34:49.500Z","msg":"START: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-29T11:34:49.538Z","msg":"END: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-29T11:34:49.538Z","msg":"Login page ready","url":"https://www.saucedemo.com/","title":"Swag Labs"}
+{"ts":"2026-01-29T11:34:49.538Z","msg":"START: login","url":"https://www.saucedemo.com/","username":"standard_user"}
+{"ts":"2026-01-29T11:34:49.538Z","msg":"START: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-29T11:34:49.582Z","msg":"END: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-29T11:34:49.582Z","msg":"START: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-29T11:34:49.613Z","msg":"END: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-29T11:34:49.714Z","msg":"END: login","url":"https://www.saucedemo.com/inventory.html","username":"standard_user"}
+{"ts":"2026-01-29T11:34:49.714Z","msg":"START: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:34:49.731Z","msg":"END: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
