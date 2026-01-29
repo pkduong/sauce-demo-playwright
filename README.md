@@ -8,8 +8,8 @@ Automated test framework using Playwright Test + Page Object Model (POM) for htt
 - Multi-browser runs: Chromium, Firefox, WebKit
 - Parallel execution
 - Screenshot, trace captured on failure
-- HTML report
-- Debug logging
+- HTML report with Allure
+- Error handling and CI debug logging
 
 ## Project Structure
 
@@ -23,6 +23,7 @@ Automated test framework using Playwright Test + Page Object Model (POM) for htt
 │ └─ CartPage.js
 ├─ tests/
 │ ├─ saucedemo.spec.js
+│ ├─ ....spec.js
 │ └─ allure.spec.js
 ├─ playwright.config.js
 ├─ package.json
@@ -71,6 +72,81 @@ Automated test framework using Playwright Test + Page Object Model (POM) for htt
    
 * **To view the last run report (HTML):**
     `npm run report`
+
+## Error Handling & CI Debugging Strategy (V5.0.0)
+
+This framework implements a **production-style error handling system** designed to
+debug flaky tests and CI/CD failures **quickly without rerunning tests locally**.
+
+### 1. Action-level Error Context (Page Object Layer)
+
+All critical user actions are wrapped in a common handler at `BasePage`:
+
+- Each action logs **START / END** with metadata
+- On failure, an enriched error is thrown including:
+  - action name
+  - current URL
+  - sanitized metadata
+  - original error preserved as `cause`
+
+This ensures every failure is **consistent, searchable, and self-descriptive**.
+
+### 2. Breadcrumbs - Execution Timeline **(under development)**
+
+The framework records **breadcrumbs** — a lightweight execution timeline — for each test:
+
+- Last ~50 meaningful actions
+- Timestamp, message, URL, and sanitized metadata
+- Automatically collected without polluting test steps
+
+Breadcrumbs answer the question:
+> *“What happened right before the test failed?”*
+
+### 3. Failure Context Bundle (CI-Friendly)
+
+On test failure, a single **entry-point artifact** is attached:
+
+#### `failure-context.json`
+Contains:
+- Test title, file, browser, retry
+- Current URL
+- Breadcrumbs timeline
+- Console logs
+- Page errors
+- Network request failures
+- All assertion errors (including soft assertions)
+
+This allows fast triage on CI **without opening multiple artifacts**.
+
+### 4. Shortcut Attachment for Allure UI
+
+Due to Allure UI limitations, the same failure context is also attached as:
+
+#### `error-context.json`
+
+This file appears near screenshots and traces, making it **easy to download immediately**
+even when a test contains multiple failed steps.
+
+### 5. Automatic Artifacts on Failure
+
+Additionally, the framework captures:
+- Screenshot
+- DOM snapshot
+- Playwright trace
+- Console output
+
+All artifacts are collected **only on failure** to keep reports clean and efficient.
+
+### 6. Designed for Flaky Test Investigation
+
+This strategy helps quickly distinguish:
+- Flaky timing / synchronization issues
+- Locator problems
+- Frontend JavaScript crashes
+- Backend / API failures
+- Real product defects
+
+The goal is **fast root-cause analysis**, not just reporting that a test failed.
 
 
 
