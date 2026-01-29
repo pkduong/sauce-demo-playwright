@@ -34,45 +34,41 @@ const PRODUCT_DETAILS = [
     }, // expect name mismatch -> should fail twice (list + detail)
 ];
 
-test.describe("@product Data-driven - verify product list vs detail (name/price/desc)", () => {
+test.describe("@product @intentionally-failing Data-driven - verify product list vs detail (name/price/desc)", () => {
 
     test("verify product list page: name + price",
         async ({ page, loggedIn, productsPage }) => {
 
             for (const tc of PRODUCT_DETAILS) {
-                await test.step(`Verify product list: ${tc.name} - ${tc.price}`, async () => {
+                await test.step(`verify product list: ${tc.name} - ${tc.price}`, async () => {
                     const item = await productsPage.findProductByNameContains(tc.name);
 
-                    const product = productsPage.getProductItem(item);
-                    const actualName = (await product.name.textContent());
-                    const actualPrice = (await product.price.textContent());
+                    const product = await productsPage.getProductItemSnapshot(item);
 
                     // fail #1 expected here for: "T-Shirt (Red)"
-                    expect.soft(actualName, `[LIST] Check Name matched for "${tc.name}"`).toBe(tc.name);
-                    expect.soft(actualPrice, `[LIST] Check Price matched for "${tc.price}"`).toBe(tc.price);
+                    expect.soft(product.name, `[LIST] Check Name matched for "${tc.name}"`).toBe(tc.name);
+                    expect.soft(product.price, `[LIST] Check Price matched for "${tc.price}"`).toBe(tc.price);
                 });
             }
         });
 
-    test("@product verify product detail page: name + price + description",
+    test("@product @intentionally-failing verify product detail page: name + price + description",
         async ({ page, loggedIn, productsPage }) => {
 
             for (const tc of PRODUCT_DETAILS) {
-                await test.step(`Verify product detail: ${tc.name}`, async () => {
+                await test.step(`verify product detail: ${tc.name}`, async () => {
 
                     await productsPage.openProductDetailByNameContains(tc.name);
 
-                    const detailName = await productsPage.getDetailName();
-                    const detailPrice = await productsPage.getDetailPrice();
-                    const detailDesc = await productsPage.getDetailDesc();
+                    const product = await productsPage.getProductDetailSnapshot();
 
                     // fail #1 expected here for: "T-Shirt (Red)"
-                    expect.soft(detailName, `[DETAIL] Check Name matched for "${tc.name}"`).toBe(tc.name);
+                    expect.soft(product.detailName, `[DETAIL] Check Name matched for "${tc.name}"`).toBe(tc.name);
 
-                    expect.soft(detailPrice, `[DETAIL] Check Price matched for "${tc.price}"`).toBe(tc.price);
+                    expect.soft(product.detailPrice, `[DETAIL] Check Price matched for "${tc.price}"`).toBe(tc.price);
 
                     // fail #2 expected here for: "Sauce Labs Backpack" description (carry.allTheThings()...)
-                    expect.soft(detailDesc, `[DETAIL] Check description matched for "${tc.desc}"`).toBe(tc.desc);
+                    expect.soft(product.detailDesc, `[DETAIL] Check description matched for "${tc.desc}"`).toBe(tc.desc);
 
                     await productsPage.backToProducts();
                 });

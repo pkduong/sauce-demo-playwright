@@ -1,7 +1,7 @@
 import { test } from "@playwright/test";
 import { allure } from "allure-playwright";
 
-test("attach example (allure)", async ({ page }) => {
+test("@allure attach example (using deprecated allure api)", async ({ page }) => {
     await page.goto("https://www.saucedemo.com/");
 
     const shot = await page.screenshot();
@@ -13,7 +13,7 @@ test("attach example (allure)", async ({ page }) => {
 });
 
 
-test("attach example (recommended)", async ({ page }, testInfo) => {
+test("@allure attach example (use modern way)", async ({ page }, testInfo) => {
     await page.goto("https://www.saucedemo.com/");
 
     //capture screenshot even with no failure

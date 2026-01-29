@@ -1,8 +1,8 @@
 const { BasePage } = require("./BasePage");
 
 class CartPage extends BasePage {
-    constructor(page) {
-        super(page);
+    constructor(page, testInfo) {
+        super(page, testInfo);
 
         // page-level selectors
         this.titleSel = ".title";
@@ -29,54 +29,84 @@ class CartPage extends BasePage {
 
     // --- page helpers ---
     async waitForCartPage() {
-        await this.title.waitFor({ state: "visible" });
-        await this.page.waitForURL(/cart\.html/);
+        return this.withAction("cart.waitForCartPage", async () => {
+            await this.title.waitFor({ state: "visible" });
+            await this.page.waitForURL(/cart\.html/);
+        });
+    }
+
+    async removeFirstItem() {
+        return this.withAction("cart.removeFirstItem", async () => {
+            const first = this.cartItems.first();
+            await first.waitFor({ state: "visible" });
+            await this.safeClick(first.locator(this.itemRemoveBtnSel), "cart.clickRemoveFirstItem");
+        });
+    }
+
+    async getCartSnapshot() {
+        return this.withAction("cart.getCartSnapshot", async () => {
+            const first = this.cartItems.first();
+            await first.waitFor({ state: "visible" });
+
+            const qtyText = (await first.locator(this.itemQtySel).textContent())?.trim() ?? "";
+            const descText = (await first.locator(this.itemDescSel).textContent())?.trim() ?? "";
+
+            await this.continueShoppingButton.waitFor({ state: "visible" });
+            await this.checkoutButton.waitFor({ state: "visible" });
+
+            const removeEnabled = await first.locator(this.itemRemoveBtnSel).isEnabled();
+            const checkoutEnabled = await this.checkoutButton.isEnabled();
+            const continueEnabled = await this.continueShoppingButton.isEnabled();
+
+            return {
+                qtyText,
+                descText,
+                removeEnabled,
+                checkoutEnabled,
+                continueEnabled,
+            };
+        });
     }
 
     // --- data getters used by tests ---
+
     async getFirstItemQtyAndDescription() {
-        const first = this.cartItems.first();
-        await first.waitFor({ state: "visible" });
-
-        const qtyText = (await first.locator(this.itemQtySel).textContent())?.trim() ?? "";
-        const descText = (await first.locator(this.itemDescSel).textContent())?.trim() ?? "";
-
+        const { qtyText, descText } = await this.getCartSnapshot();
         return { qtyText, descText };
     }
 
     async getCartUIEnabledState() {
-        // These buttons exist on cart page; ensure visible first
-        await this.continueShoppingButton.waitFor({ state: "visible" });
-        await this.checkoutButton.waitFor({ state: "visible" });
-
-        const first = this.cartItems.first();
-        await first.waitFor({ state: "visible" });
-
-        const removeEnabled = await first.locator(this.itemRemoveBtnSel).isEnabled();
-        const checkoutEnabled = await this.checkoutButton.isEnabled();
-        const continueEnabled = await this.continueShoppingButton.isEnabled();
+        const { removeEnabled, checkoutEnabled, continueEnabled } =
+            await this.getCartSnapshot();
 
         return { removeEnabled, checkoutEnabled, continueEnabled };
     }
 
-    async removeFirstItem() {
-        const first = this.cartItems.first();
-        await first.waitFor({ state: "visible" });
-        await first.locator(this.itemRemoveBtnSel).click();
-    }
-
     async getItemsCount() {
-        return await this.cartItems.count();
+        return this.withAction("cart.getItemsCount", async () => {
+            const count = await this.cartItems.count();
+            this.log("Cart item count", { count });
+            return count;
+        });
     }
 
     async getCartCount() {
-        const badge = this.page.locator(this.cartBadgeSel);
-        if (await badge.count()) {
-            const text = (await badge.textContent())?.trim();
-            return text ? Number(text) : 0;
-        }
-        return 0;
+        return this.withAction("cart.getCartCount", async () => {
+            const badge = this.page.locator(this.cartBadgeSel);
+
+            if (await badge.count()) {
+                const text = (await badge.textContent())?.trim();
+                const count = text ? Number(text) : 0;
+                this.log("Cart badge count", { count });
+                return count;
+            }
+
+            this.log("Cart badge not visible, count = 0");
+            return 0;
+        });
     }
+
+
 }
 
 module.exports = { CartPage };

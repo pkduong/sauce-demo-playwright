@@ -25,7 +25,7 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
             });
 
             await test.step("Verify successful login (Products page visible)", async () => {
-                await productsPage.waitForProductPage();
+                await productsPage.waitForProductListPage();
 
                 //verify page title Products and correct url
                 await expect.soft(
@@ -74,36 +74,37 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
             })
 
             await test.step("Go to Cart and verify quantity, description and button enable", async () => {
+
                 await productsPage.openCart();
                 await cartPage.waitForCartPage();
 
-                const { qtyText, descText } = await cartPage.getFirstItemQtyAndDescription();
+                // const { qtyText, descText } = await cartPage.getFirstItemQtyAndDescription();
+                const cart = await cartPage.getCartSnapshot();
 
                 expect.soft(
-                    qtyText,
+                    cart.qtyText,
                     "[CART] Item quantity should be 1 for newly added product"
                 ).toBe("1");
 
                 expect.soft(
-                    descText.length,
+                    cart.descText.length,
                     "[CART] Item description should not be empty"
                 ).toBeGreaterThan(0);
 
-
-                const { removeEnabled, checkoutEnabled, continueEnabled } = await cartPage.getCartUIEnabledState();
+                // const { removeEnabled, checkoutEnabled, continueEnabled } = await cartPage.getCartUIEnabledState();
 
                 expect.soft(
-                    removeEnabled,
+                    cart.removeEnabled,
                     "[CART] Remove button should be enabled"
                 ).toBeTruthy();
 
                 expect.soft(
-                    checkoutEnabled,
+                    cart.checkoutEnabled,
                     "[CART] Checkout button should be enabled"
                 ).toBeTruthy();
 
                 expect.soft(
-                    continueEnabled,
+                    cart.continueEnabled,
                     "[CART] Continue Shopping button should be enabled"
                 ).toBeTruthy();
 
