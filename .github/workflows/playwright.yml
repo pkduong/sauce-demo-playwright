@@ -93,7 +93,18 @@ jobs:
           [ -z "$SAFE_TAG" ] && SAFE_TAG=all
           echo "SAFE_TAG=$SAFE_TAG" >> $GITHUB_ENV
           echo "SAFE_TAG=$SAFE_TAG"
-
+          
+      - name: Prepare TAG_LABEL (safe for artifact name)
+        if: always()
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          # Replace invalid chars for artifact names (especially | / \ : * ? " < >)
+          TAG_LABEL=$(echo "$TAG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/_/g')
+          [ -z "$TAG_LABEL" ] && TAG_LABEL=all
+          echo "TAG_LABEL=$TAG_LABEL" >> $GITHUB_ENV
+          echo "TAG_LABEL=$TAG_LABEL"
+          
       # Restore history from gh-pages (site/) into allure-results BEFORE generating report
       # FIX: Prefer newest run snapshot history (reliable), fallback to latest.
       - name: Restore Allure history (trending)
@@ -133,7 +144,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ inputs.browser }}-${{ inputs.tag }}
+          name: playwright-report-${{ inputs.browser }}-${{ env.TAG_LABEL }}
           path: playwright-report
           retention-days: 7
 
@@ -141,7 +152,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report-${{ inputs.browser }}-${{ inputs.tag }}
+          name: allure-report-${{ inputs.browser }}-${{ env.TAG_LABEL }}
           path: allure-report
           retention-days: 7
 
@@ -149,7 +160,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-${{ inputs.browser }}-${{ inputs.tag }}
+          name: allure-results-${{ inputs.browser }}-${{ env.TAG_LABEL }}
           path: allure-results
           retention-days: 7
 
@@ -254,3 +265,4 @@ jobs:
           git add docs
           git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER] [$SAFE_TAG]" || echo "Nothing to commit"
           git push --force-with-lease origin gh-pages
+
