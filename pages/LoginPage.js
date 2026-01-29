@@ -1,3 +1,4 @@
+const { expect } = require("allure-playwright");
 const { BasePage } = require("./BasePage");
 
 class LoginPage extends BasePage {
@@ -10,6 +11,11 @@ class LoginPage extends BasePage {
 
     async open() {
         await this.goto("/");
+
+        const title = await this.page.locator(".login_logo").textContent();
+        this.log(`Opened Login Page - title: ${title}`);
+        expect(title).toBe("Swag Labs");
+
         await this.usernameInput.waitFor({ state: "visible" });
         this.log("Login page loaded");
     }
@@ -18,7 +24,12 @@ class LoginPage extends BasePage {
         this.log(`Login with username: ${username}`);
         await this.usernameInput.fill(username);
         await this.passwordInput.fill(password);
-        await this.loginButton.click();
+
+        // await this.loginButton.click();
+        await Promise.all([
+            this.page.waitForURL(/inventory\.html/),
+            this.loginButton.click(),
+        ]);
     }
 }
 
