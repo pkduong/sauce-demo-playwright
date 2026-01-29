@@ -8,8 +8,10 @@ Automated test framework using Playwright Test + Page Object Model (POM) for htt
 - Multi-browser runs: Chromium, Firefox, WebKit
 - Parallel execution
 - Screenshot, trace captured on failure
-- HTML report with Allure
-- Error handling and CI debug logging
+- Changelog.md auto tracking every 2 weeks sprint (V4.0.0)
+- HTML report with Allure Reporter (V4.0.0)
+  - https://pkduong.github.io/sauce-demo-playwright/docs/allure/
+- Error handling and CI debug logging (V5.0.0)
 
 ## Project Structure
 
@@ -147,6 +149,7 @@ This strategy helps quickly distinguish:
 - Real product defects
 
 The goal is **fast root-cause analysis**, not just reporting that a test failed.
+
 
 
 
