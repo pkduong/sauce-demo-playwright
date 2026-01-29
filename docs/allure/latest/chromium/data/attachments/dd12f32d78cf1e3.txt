@@ -1,0 +1,25 @@
+{"ts":"2026-01-29T11:41:56.412Z","msg":"START: goto","url":"about:blank","path":"/"}
+{"ts":"2026-01-29T11:41:56.779Z","msg":"END: goto","url":"https://www.saucedemo.com/","path":"/"}
+{"ts":"2026-01-29T11:41:56.779Z","msg":"START: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-29T11:41:56.963Z","msg":"END: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-29T11:41:56.963Z","msg":"Login page ready","url":"https://www.saucedemo.com/","title":"Swag Labs"}
+{"ts":"2026-01-29T11:41:56.963Z","msg":"START: login","url":"https://www.saucedemo.com/","username":"standard_user"}
+{"ts":"2026-01-29T11:41:56.963Z","msg":"START: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-29T11:41:57.030Z","msg":"END: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-29T11:41:57.030Z","msg":"START: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-29T11:41:57.105Z","msg":"END: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-29T11:41:57.291Z","msg":"END: login","url":"https://www.saucedemo.com/inventory.html","username":"standard_user"}
+{"ts":"2026-01-29T11:41:57.292Z","msg":"START: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.308Z","msg":"END: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.336Z","msg":"START: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.368Z","msg":"END: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.386Z","msg":"START: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.413Z","msg":"END: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.429Z","msg":"START: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.462Z","msg":"END: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.472Z","msg":"START: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.498Z","msg":"END: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.516Z","msg":"START: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.545Z","msg":"END: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.557Z","msg":"START: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-29T11:41:57.602Z","msg":"END: products.getProductItemSnapshot","url":"https://www.saucedemo.com/inventory.html"}
