@@ -66,8 +66,10 @@ jobs:
           if [ "$TAG" = "@all" ] || [ -z "$TAG" ]; then
             echo "Run ALL tests (no grep)"
           else
-            echo "Run with grep: $TAG"
-            CMD="$CMD --grep \"$TAG\""
+            # Convert space-separated tags to regex OR
+            GREP_EXPR=$(echo "$TAG" | sed 's/[[:space:]]\+/|/g')
+            echo "Run with grep regex: $GREP_EXPR"
+            CMD="$CMD --grep \"$GREP_EXPR\""
           fi
 
           echo "Running: $CMD"
@@ -265,4 +267,5 @@ jobs:
           git add docs
           git commit -m "Publish Allure report ($RUN_KEY) [$BROWSER] [$SAFE_TAG]" || echo "Nothing to commit"
           git push --force-with-lease origin gh-pages
+
 
