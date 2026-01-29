@@ -18,6 +18,9 @@ const test = base.extend({
         const pageErrors = [];
         const requestFailed = [];
 
+        // Breadcrumbs buffer: BasePage.log() will push here
+        page.__breadcrumbs = page.__breadcrumbs || [];
+
         const onConsole = (msg) => {
             // Keep it readable on CI: [type] text
             consoleLogs.push(`[${msg.type()}] ${msg.text()}`);
@@ -41,6 +44,53 @@ const test = base.extend({
         // Teardown: attach artifacts only when test failed
         const failed = testInfo.status !== testInfo.expectedStatus;
         if (failed && page && !page.isClosed()) {
+            // One-stop summary to speed up CI triage (open this first)
+            const clampArr = (arr, max = 200) => arr.slice(-max);
+            const failureContext = {
+                ts: new Date().toISOString(),
+                test: {
+                    title: testInfo.title,
+                    file: testInfo.file,
+                    status: testInfo.status,
+                    expectedStatus: testInfo.expectedStatus,
+                    retry: testInfo.retry,
+                    durationMs: testInfo.duration,
+                },
+                url: page.url(),
+                breadcrumbs: (page.__breadcrumbs || []).slice(-50),
+                console: clampArr(consoleLogs, 200),
+                pageErrors: clampArr(pageErrors, 200),
+                requestFailed: clampArr(requestFailed, 200),
+                errors: (testInfo.errors || []).map(e => ({ message: e.message, stack: e.stack })),
+            };
+
+            const safeStringify = (obj) => {
+                try {
+                    return JSON.stringify(obj, null, 2);
+                } catch (e) {
+                    return JSON.stringify(
+                        { note: "failure-context not serializable", error: String(e) },
+                        null,
+                        2
+                    );
+                }
+            };
+
+            const failureBody = Buffer.from(safeStringify(failureContext));
+
+            // Canonical entry-point artifact
+            await testInfo.attach("failure-context.json", {
+                body: failureBody,
+                contentType: "application/json",
+            });
+
+            // Shortcut copy (easier to download in Allure UI near other attachments)
+            await testInfo.attach("error-context.json", {
+                body: failureBody,
+                contentType: "application/json",
+            });
+
+
             // URL (super useful when the error is vague)
             await testInfo.attach("failure-url", {
                 body: Buffer.from(page.url()),
