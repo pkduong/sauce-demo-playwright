@@ -8,7 +8,7 @@ const PRODUCT_EXPLORE_ACTION = [
     { name: "Sauce Labs Bolt T-Shirt", action: "add-to-cart" },
 ];
 
-test.describe("@explore Simulate shopping behavior - explore details then add to cart", () => {
+test.describe("@explore @cart Simulate shopping behavior - explore details then add to cart", () => {
     test("explore products detail pages, go back, then add to cart",
         async ({ page, loggedIn, productsPage }) => {
 
@@ -21,18 +21,19 @@ test.describe("@explore Simulate shopping behavior - explore details then add to
                         await productsPage.openProductDetailByNameContains(p.name);
 
                         // user is now on detail page → verify by visible product name
-                        const detailName = await productsPage.getDetailName();
+                        const product = await productsPage.getProductDetailSnapshot();
                         expect.soft(
-                            detailName,
+                            product.detailName,
                             `[DETAIL] Product detail page should display correct product name: ${p.name}`
                         ).toContain(p.name);
 
                         // user reads description
-                        const desc = await productsPage.getDetailDesc();
                         expect.soft(
-                            desc.length,
+                            product.detailDesc,
                             `[DETAIL] Product description should not be empty`
-                        ).toBeGreaterThan(0);
+                            // ).toBeTruthy();  // old style
+                        ).toMatch(/\S+/); //  at least one non-whitespace character
+
 
                         // user decides to go back to product list
                         await productsPage.backToProducts();

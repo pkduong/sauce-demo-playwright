@@ -10,12 +10,12 @@ const PRODUCT_LIST = [
     { name: "T-Shirt (Red)", price: "$15.99" }, // failed expect will happen in this item by name
 ];
 
-test.describe("@demo Data-driven - verify product name + price", () => {
+test.describe("@demo @intentionally-failing Data-driven - verify product name + price", () => {
     test("verify all products by name and price",
         async ({ page, loggedIn, productsPage }) => {
 
             for (const tc of PRODUCT_LIST) {
-                await test.step(`Verify product list: ${tc.name} - ${tc.price}`, async () => {
+                await test.step(`verify product list: ${tc.name} - ${tc.price}`, async () => {
                     const item = await productsPage.findProductByNameContains(tc.name);
 
                     const product = productsPage.getProductItem(item);
