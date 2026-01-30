@@ -25,7 +25,7 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
             });
 
             await test.step("Verify successful login (Products page visible)", async () => {
-                await productsPage.waitForProductListPage();
+                await productsPage.waitUntilReady();
 
                 //verify page title Products and correct url
                 await expect.soft(
@@ -79,7 +79,7 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
             await test.step("Go to Cart and verify quantity, description and button enable", async () => {
 
                 await productsPage.openCart();
-                await cartPage.waitForCartPage();
+                await cartPage.waitUntilReady();
 
                 // const { qtyText, descText } = await cartPage.getFirstItemQtyAndDescription();
                 const cart = await cartPage.getCartSnapshot();
