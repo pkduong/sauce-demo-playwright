@@ -1,6 +1,7 @@
 # SauceDemo Playwright POM Framework (JavaScript)
 
-Automated test framework using Playwright Test + Page Object Model (POM) for https://www.saucedemo.com/
+A scalable Playwright test framework built with POM in respect of OOP, SOLID, and a centralized locator strategy designed for modern web applications.
+Based on example from https://www.saucedemo.com/
 
 ## Features
 - Page Object Model (POM)
@@ -12,6 +13,7 @@ Automated test framework using Playwright Test + Page Object Model (POM) for htt
 - HTML report with Allure Reporter (V4.0.0)
   - https://pkduong.github.io/sauce-demo-playwright/docs/allure/
 - Error handling and CI debug logging (V5.0.0)
+- Locator strategy (V6.0.0), separate WHAT we do (page actions) from HOW we find elements (UI map).
 
 ## Project Structure
 
@@ -149,6 +151,30 @@ This strategy helps quickly distinguish:
 - Real product defects
 
 The goal is **fast root-cause analysis**, not just reporting that a test failed.
+
+## Locator strategy (V6.0.0)
+```
+UI Map (selectors only)
+        ↓
+Page Object (actions & flows)
+        ↓
+Component Object (reusable widgets)
+```
+- Introduced UI Map layer
+- Introduced Component Objects
+- Refactored all pages to remove raw selectors
+- Tests updated to use page APIs
+- Locator priority when locating elements:
+  - getByRole, getByLabel, getByTestId
+  - Stable container + scoped locators
+  - CSS/XPath as last resort
+
+### SOLID Principles in Practice
+- Single Responsibility:	UI map, Page, Component clearly separated
+- Open/Closed:	Extend UI maps without breaking pages
+- Liskov:	Components/pages share consistent contracts
+- Interface Segregation:	Tests use small page APIs
+- Dependency Inversion:	Pages depend on UI maps, not selectors
 
 
 
