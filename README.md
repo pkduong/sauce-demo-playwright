@@ -1,9 +1,9 @@
-# SauceDemo Playwright POM Framework (JavaScript)
+# 🎯 SauceDemo Playwright POM Framework (JavaScript)
 
 A scalable Playwright test framework built with POM in respect of OOP, SOLID, and a centralized locator strategy designed for modern web applications.
 Based on example from https://www.saucedemo.com/
 
-## Features
+## ✨ Features
 - Page Object Model (POM)
 - Login credentials stored in JSON
 - Multi-browser runs: Chromium, Firefox, WebKit
@@ -15,34 +15,56 @@ Based on example from https://www.saucedemo.com/
 - Error handling and CI debug logging (V5.0.0)
 - Locator strategy (V6.0.0), separate WHAT we do (page actions) from HOW we find elements (UI map).
 
-## Project Structure
+## 📁 Project Structure
 
 ```
-├─ data/
-│ └─ credentials.json
-├─ pages/
-│ ├─ BasePage.js
-│ ├─ LoginPage.js
-│ ├─ ProductsPage.js
-│ └─ CartPage.js
-├─ tests/
-│ ├─ saucedemo.spec.js
-│ ├─ ....spec.js
-│ └─ allure.spec.js
-├─ playwright.config.js
-├─ package.json
-└─ README.md
+├── data/
+│   └── credentials.json          # Test data (accounts, static inputs)
+│
+├── pages/
+│   ├── BasePage.js                # Shared logic: navigation, waits, error handling
+│   ├── LoginPage.js               # Login page orchestration
+│   ├── ProductsPage.js            # Products listing & flow control
+│   └── CartPage.js                # Cart page orchestration
+│
+├── ui/
+│   ├── login.ui.js                # Login UI map (locators only)
+│   ├── products.ui.js             # Products UI map
+│   └── cart.ui.js                 # Cart UI map
+│
+├── test-fixtures/
+│   └── fixtures.js                # Custom Playwright fixtures & test extensions
+│
+├── tests/
+│   ├── saucedemo.spec.js           # End-to-end happy flow (login → cart)
+│   ├── shopping.explore.spec.js    # User exploration flows
+│   ├── products.data-driven.spec.js
+│   ├── products.data-driven.detail-assert.spec.js
+│   └── allure.spec.js              # Report / debug-oriented scenarios
+│
+├── scripts/
+│   └── changelog.js                # Auto changelog generation script
+│
+├── playwright-report/              # Playwright HTML report (generated)
+├── test-results/                   # Raw test artifacts (screenshots, traces)
+│
+├── playwright.config.js             # Playwright configuration
+├── package.json                     # Project scripts & dependencies
+├── package-lock.json
+├── CHANGELOG.md                     # Auto-generated release notes
+├── README.md                        # Project documentation
+└── .gitignore
 ```
 
-## Environment Setup
+## ⚙️ Environment Setup
 - NodeJS version: v22+ 
 - Java JDK v17+ (for Allure Reporter)
 
-## IDE
+## 💻 IDE
 - Visual Studio Code (VS Code)
 - VSCode Playwright Extensions: https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright
 
-## Setup
+## 🛠️ Setup
 1. Install Node.js.
 2. Run `npm install` to install Playwright and dependencies.
 3. Run `npx playwright install` to download browser binaries.
@@ -50,7 +72,7 @@ Based on example from https://www.saucedemo.com/
 5. Run `npm install -g allure-commandline` to generate & open the report. 
 6. Run `npm i -D rimraf` to support clean shortcut commands (when running `npm run allure` smoothly)
 
-## Running Tests for Allure report
+## 📊 Running Tests for Allure report
 * **Run all tests (Headless, all browser, parallel):**
 `npm run allure:clean; npx playwright test; npm run allure:generate; npm run allure:open;`
 
@@ -59,7 +81,7 @@ Based on example from https://www.saucedemo.com/
 `npm run allure:generate`
 `npm run allure:open`
 
-## Running Tests for Playwright report 
+## 🧪 Running Tests for Playwright report 
 * **Run all tests (Headless, all browser, parallel):**
     `npm run test`
 
@@ -77,7 +99,7 @@ Based on example from https://www.saucedemo.com/
 * **To view the last run report (HTML):**
     `npm run report`
 
-## Error Handling & CI Debugging Strategy (V5.0.0)
+## 🐞 Error Handling & CI Debugging Strategy (V5.0.0)
 
 This framework implements a **production-style error handling system** designed to
 debug flaky tests and CI/CD failures **quickly without rerunning tests locally**.
@@ -152,7 +174,7 @@ This strategy helps quickly distinguish:
 
 The goal is **fast root-cause analysis**, not just reporting that a test failed.
 
-## Locator strategy (V6.0.0)
+## 📦 Locator strategy (V6.0.0)
 ```
 UI Map (selectors only)
         ↓
@@ -270,3 +292,4 @@ The following common automation pitfalls are intentionally avoided:
 - ❌ Tight coupling between tests and DOM structure  
 
 By avoiding these patterns, the framework remains flexible, readable, and resilient to UI changes.
+
