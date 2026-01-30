@@ -176,6 +176,97 @@ Component Object (reusable widgets)
 - Interface Segregation:	Tests use small page APIs
 - Dependency Inversion:	Pages depend on UI maps, not selectors
 
+## ✅ SOLID alignment achieved (V6.1.0)
 
+Starting from **v6.1**, the framework has been refactored to align closely with **SOLID principles**, making it easier to scale, extend, and maintain as the test suite grows.
 
+### What’s improved
 
+| Principle | v6.1 improvement |
+|----------|------------------|
+| **S – Single Responsibility** | Components own row-level data and behavior; Pages orchestrate flows only |
+| **O – Open / Closed** | Standardized naming rules allow extension without breaking existing APIs |
+| **L – Liskov Substitution** | Consistent method contracts across Pages and Components |
+| **I – Interface Segregation** | Tests interact with small, focused Page APIs instead of raw locators |
+| **D – Dependency Inversion** | Pages depend on UI maps; shared logic is centralized in `BasePage` |
+
+### Why this matters
+
+- 📈 **Scalable architecture** – adding new features or pages does not introduce ripple changes  
+- 🧠 **Clear ownership** – components handle data, pages handle orchestration, tests handle intent  
+- 🔧 **Low maintenance cost** – shared behaviors live in one place (`BasePage`)  
+- 🧪 **Stable tests** – tests consume semantic APIs, not fragile selectors  
+
+This structure allows the framework to evolve confidently while keeping tests readable, stable, and aligned with real user behavior.
+
+## 🏗️ Architecture Overview
+
+The framework is structured around **clear responsibility boundaries** between Pages, Components, and Tests.
+
+- **BasePage**
+  - Centralizes shared behaviors: navigation helpers, error handling, logging, and action wrappers
+  - Provides a stable foundation for all pages
+
+- **Page Objects**
+  - Orchestrate user flows and high-level actions
+  - Do not expose raw locators to tests
+  - Delegate row-level or repeated UI logic to Components
+
+- **Components**
+  - Represent reusable UI units (e.g. product item, cart row)
+  - Own their own locators and data extraction logic
+  - Return structured snapshots instead of DOM handles
+
+- **Tests**
+  - Express business intent, not UI mechanics
+  - Interact only with Page APIs
+  - Never depend directly on selectors or DOM structure
+
+This separation ensures that UI changes remain localized and do not cascade into test failures.
+
+---
+
+## 📐 Design Rules & Conventions
+
+To keep the framework consistent and scalable, the following conventions are enforced:
+
+### Method naming (verb-based)
+
+- `list...()` → return collections  
+  _e.g. `listProducts()`_
+
+- `get...()` → return data or snapshots  
+  _e.g. `getCartSnapshot()`_
+
+- `open() / goTo() / backTo()` → navigation and flow control  
+  _e.g. `openCart()`, `backToProducts()`_
+
+- `waitFor...()` → explicit page or state synchronization  
+  _e.g. `waitForProductListPage()`_
+
+### Page Object rules
+
+- Pages **do not assert**
+- Pages **do not return locators**
+- Pages **orchestrate**, Components **operate**
+- All shared logic must live in `BasePage`
+
+### Test rules
+
+- Tests describe **what** is verified, not **how**
+- Assertions belong in tests, never in Page Objects
+- Tests should read like user journeys, not automation scripts
+
+---
+
+## 🚫 Anti-patterns avoided
+
+The following common automation pitfalls are intentionally avoided:
+
+- ❌ Exposing locators directly to tests  
+- ❌ Mixing assertions inside Page Objects  
+- ❌ Duplicating wait logic across multiple tests  
+- ❌ Page Objects growing into “god classes”  
+- ❌ Tight coupling between tests and DOM structure  
+
+By avoiding these patterns, the framework remains flexible, readable, and resilient to UI changes.
