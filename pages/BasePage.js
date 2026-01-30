@@ -104,11 +104,27 @@ class BasePage {
     //     }
     // }
 
+    // async goto(path = "/") {
+    //     return this.withAction("goto", async () => {
+    //         await this.page.goto(path, { waitUntil: "domcontentloaded" });
+    //     }, { path });
+    // }
+
+    // Tests call page.goto()
+    // Runtime decides which waitUntilReady() runs (via polymorphism)
     async goto(path = "/") {
         return this.withAction("goto", async () => {
-            await this.page.goto(path, { waitUntil: "domcontentloaded" });
-        }, { path });
+            await this.page.goto(path);
+            await this.waitUntilReady(); // polymorphic call
+        });
     }
+
+    async waitUntilReady() {
+        // Default: do nothing
+        // Child pages override this to define their own readiness contract
+
+    }
+
 
     async safeClick(locator, actionName = "click", meta = {}) {
         return this.withAction(actionName, async () => {

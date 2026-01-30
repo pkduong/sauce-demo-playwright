@@ -11,6 +11,16 @@ class LoginPage extends BasePage {
         this.ui = new LoginUI(page);
     }
 
+
+    // OOP-ready contract (override BasePage.waitUntilReady)
+    async waitUntilReady() {
+        return this.withAction("login.waitUntilReady", async () => {
+            await this.ui.logo().waitFor({ state: "visible" });
+        });
+    }
+
+
+
     /**
      * Open login page and wait until it is ready.
      * Returns logo text so tests can assert (keep asserts out of POM).

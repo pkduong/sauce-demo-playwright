@@ -12,12 +12,28 @@ class CartPage extends BasePage {
         this.ui = new CartUI(page);
     }
 
-    async waitForCartPage() {
-        return this.withAction("cart.waitForCartPage", async () => {
+
+    // OOP-ready contract (override BasePage.waitUntilReady)
+    async waitUntilReady() {
+        return this.withAction("cart.waitUntilReady", async () => {
+            // Page-level anchor
             await this.ui.title().waitFor({ state: "visible" });
+
+            // Navigation contract
             await this.page.waitForURL(/cart\.html/);
+
+            // If cart may be empty, don't wait for first item visibility
+            await this.ui.continueShoppingButton().waitFor({ state: "visible" });
+            await this.ui.checkoutButton().waitFor({ state: "visible" });
         });
     }
+
+    // async waitForCartPage() {
+    //     return this.withAction("cart.waitForCartPage", async () => {
+    //         await this.ui.title().waitFor({ state: "visible" });
+    //         await this.page.waitForURL(/cart\.html/);
+    //     });
+    // }
 
     async getItemsCount() {
         return this.withAction("cart.getItemsCount", async () => {

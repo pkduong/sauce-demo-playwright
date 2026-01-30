@@ -11,13 +11,22 @@ class ProductsPage extends BasePage {
         super(page, testInfo);
         this.ui = new ProductsUI(page);
     }
-
-    async waitForProductListPage() {
-        return this.withAction("products.waitForProductListPage", async () => {
+    //Override method to wait until page is ready
+    async waitUntilReady() {
+        return this.withAction("products.waitUntilReady", async () => {
             await this.ui.title().waitFor({ state: "visible" });
-            await this.page.waitForURL(/inventory\.html/);
+
+            // updated a way of waiting-load stronger than URL-only: ensures list is actually rendered
+            await this.ui.inventoryItems().first().waitFor({ state: "visible" });
         });
     }
+
+    // async waitForProductListPage() {
+    //     return this.withAction("products.waitForProductListPage", async () => {
+    //         await this.ui.title().waitFor({ state: "visible" });
+    //         await this.page.waitForURL(/inventory\.html/);
+    //     });
+    // }
 
     async openCart() {
         return this.withAction("products.openCart", async () => {

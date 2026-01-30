@@ -112,7 +112,7 @@ const test = base.extend({
         await loginPage.open();
         await loginPage.login(creds.standard.username, creds.standard.password);
 
-        await productsPage.waitForProductListPage();
+        await productsPage.waitUntilReady();
 
         await use(page);
     },
