@@ -45,7 +45,6 @@ class BasePage {
 
             // Auto-attach only when testInfo is injected (fixture recommended)
             if (this.testInfo) {
-                // await this.attachOnFailure(actionName); // Moved to test fixture for broader coverage
                 await this.attachActionContext(actionName, meta, err);
             }
 
@@ -79,31 +78,6 @@ class BasePage {
         }
     }
 
-    // Moved to test fixture for broader coverage==============================
-    // async attachOnFailure(actionName) {
-    //     // Best ROI for daily triage on CI: screenshot + DOM + URL
-    //     try {
-    //         await this.testInfo.attach(`failure-${actionName}-url.txt`, {
-    //             body: Buffer.from(String(this.page.url())),
-    //             contentType: "text/plain",
-    //         });
-
-    //         await this.testInfo.attach(`failure-${actionName}-screenshot.png`, {
-    //             body: await this.page.screenshot({ fullPage: true }),
-    //             contentType: "image/png",
-    //         });
-
-    //         const html = await this.page.content();
-    //         await this.testInfo.attach(`failure-${actionName}-dom.html`, {
-    //             body: Buffer.from(html),
-    //             contentType: "text/html",
-    //         });
-    //     } catch (attachErr) {
-    //         // Never fail the test because of attachments
-    //         this.log("WARN: attachOnFailure failed", { attachErr: String(attachErr) });
-    //     }
-    // }
-
     async goto(path = "/") {
         return this.withAction("goto", async () => {
             await this.page.goto(path, { waitUntil: "domcontentloaded" });
@@ -117,17 +91,43 @@ class BasePage {
         }, meta);
     }
 
-    async safeFill(locator, value, actionName = "fill", meta = {}) {
+    /**
+     * Fill input safely with optional masking.
+     * - Default mask=true (safe for passwords/tokens)
+     */
+    async safeFill(locator, value, actionName = "fill", meta = {}, options = { mask: true }) {
+        const mask = options?.mask !== false;
         return this.withAction(actionName, async () => {
             await locator.waitFor({ state: "visible" });
             await locator.fill(value);
-        }, { ...meta, valueMasked: "***" });
+        }, { ...meta, ...(mask ? { valueMasked: "***" } : { value }) });
+    }
+
+    async safeFillSensitive(locator, value, actionName = "fillSensitive", meta = {}) {
+        return this.safeFill(locator, value, actionName, meta, { mask: true });
+    }
+
+    async safeFillPlain(locator, value, actionName = "fillPlain", meta = {}) {
+        return this.safeFill(locator, value, actionName, meta, { mask: false });
     }
 
     async safeText(locator, actionName = "textContent", meta = {}) {
         return this.withAction(actionName, async () => {
             await locator.waitFor({ state: "visible" });
             return await locator.textContent();
+        }, meta);
+    }
+
+    /**
+     * Read an optional integer from a locator (e.g., cart badge).
+     * Returns defaultValue when locator doesn't exist/has no text or cannot parse.
+     */
+    async readOptionalInt(locator, defaultValue = 0, actionName = "readOptionalInt", meta = {}) {
+        return this.withAction(actionName, async () => {
+            if (!(await locator.count())) return defaultValue;
+            const raw = (await locator.textContent())?.trim() ?? "";
+            const n = parseInt(raw, 10);
+            return Number.isFinite(n) ? n : defaultValue;
         }, meta);
     }
 }

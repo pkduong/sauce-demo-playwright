@@ -7,15 +7,15 @@ class LoginUI {
     }
 
     usernameInput() {
-        return this.page.locator("input#user-name");
+        return this.page.getByTestId("username");
     }
 
     passwordInput() {
-        return this.page.locator("input#password");
+        return this.page.getByTestId("password");
     }
 
     loginButton() {
-        return this.page.locator("input#login-button");
+        return this.page.getByTestId("login-button");
     }
 
     logo() {
@@ -23,7 +23,7 @@ class LoginUI {
     }
 
     errorMessage() {
-        return this.page.locator('[data-test="error"]');
+        return this.page.getByTestId("error");
     }
 }
 

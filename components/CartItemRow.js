@@ -9,20 +9,28 @@ class CartItemRow {
     }
 
     qty() {
-        return this.ui.itemQty(this.root);
+        return this.ui.qty(this.root);
     }
 
-    desc() {
-        return this.ui.itemDesc(this.root);
+    description() {
+        return this.ui.description(this.root);
     }
 
     name() {
-        return this.ui.itemName(this.root);
+        return this.ui.name(this.root);
     }
 
     removeButton() {
-        return this.ui.itemRemoveButton(this.root);
+        return this.ui.removeButton(this.root);
     }
+
+    async snapshot() {
+        const qty = (await this.qty().textContent())?.trim() ?? "";
+        const name = (await this.name().textContent())?.trim() ?? "";
+        const description = (await this.description().textContent())?.trim() ?? "";
+        return { qty, name, description };
+    }
+
 }
 
 module.exports = { CartItemRow };

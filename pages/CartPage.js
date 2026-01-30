@@ -19,6 +19,17 @@ class CartPage extends BasePage {
         });
     }
 
+    async getPageTitle() {
+        return this.withAction("cart.getPageTitle", async () => {
+            const text = (await this.ui.title().textContent()) ?? "";
+            return text.trim();
+        });
+    }
+
+    async getCartCount() {
+        return this.readOptionalInt(this.ui.cartBadge(), 0, "cart.getCartCount");
+    }
+
     async getItemsCount() {
         return this.withAction("cart.getItemsCount", async () => {
             const count = await this.ui.cartItems().count();
@@ -27,8 +38,8 @@ class CartPage extends BasePage {
         });
     }
 
-    async getAllItems() {
-        return this.withAction("cart.getAllItems", async () => {
+    async listItems() {
+        return this.withAction("cart.listItems", async () => {
             const items = this.ui.cartItems();
             const count = await items.count();
             const rows = [];
@@ -39,76 +50,54 @@ class CartPage extends BasePage {
         });
     }
 
-    async getFirstItem() {
-        return this.withAction("cart.getFirstItem", async () => {
-            const root = this.ui.cartItems().first();
-            await root.waitFor({ state: "visible" });
-            return new CartItemRow(root, this.ui);
-        });
-    }
-
     async removeFirstItem() {
         return this.withAction("cart.removeFirstItem", async () => {
-            const item = await this.getFirstItem();
-            await this.safeClick(item.removeButton(), "cart.clickRemoveFirstItem");
-        });
-    }
-
-    async removeItemByNameContains(name) {
-        return this.withAction("cart.removeItemByNameContains", async () => {
-            const root = this.ui.itemByNameContains(name);
-            await root.waitFor({ state: "visible" });
-            const row = new CartItemRow(root, this.ui);
-            await this.safeClick(row.removeButton(), "cart.clickRemoveByName", { name });
-        }, { name });
-    }
-
-    async getCartCount() {
-        return this.withAction("cart.getCartCount", async () => {
-            const badge = this.ui.cartBadge();
-            if (await badge.count()) {
-                const text = (await badge.textContent())?.trim();
-                const count = text ? Number(text) : 0;
-                this.log("Cart badge count", { count });
-                return count;
-            }
-            this.log("Cart badge not visible, count = 0");
-            return 0;
-        });
-    }
-
-    /**
-     * Snapshot intended for tests to assert state (keeps asserts out of POM).
-     * Uses UI map methods only (no raw selectors).
-     */
-    async getCartSnapshot() {
-        return this.withAction("cart.getCartSnapshot", async () => {
             const firstRoot = this.ui.cartItems().first();
             await firstRoot.waitFor({ state: "visible" });
 
-            const qtyText = (await this.ui.itemQty(firstRoot).textContent())?.trim() ?? "";
-            const descText = (await this.ui.itemDesc(firstRoot).textContent())?.trim() ?? "";
+            const row = new CartItemRow(firstRoot, this.ui);
+            await row.removeButton().click();
+        });
+    }
+
+    async clickContinueShopping() {
+        return this.withAction("cart.clickContinueShopping", async () => {
+            await Promise.all([
+                this.page.waitForURL(/inventory\.html/),
+                this.ui.continueShoppingButton().click(),
+            ]);
+        });
+    }
+
+    async clickCheckout() {
+        return this.withAction("cart.clickCheckout", async () => {
+            await Promise.all([
+                this.page.waitForURL(/checkout-step-one\.html/),
+                this.ui.checkoutButton().click(),
+            ]);
+        });
+    }
+
+    async getCartSnapshot() {
+        return this.withAction("cart.getCartSnapshot", async () => {
+            const rows = await this.listItems();
+            const first = rows[0];
+
+            const { qty, description } = await first.snapshot();
 
             await this.ui.continueShoppingButton().waitFor({ state: "visible" });
             await this.ui.checkoutButton().waitFor({ state: "visible" });
 
-            const removeEnabled = await this.ui.itemRemoveButton(firstRoot).isEnabled();
-            const checkoutEnabled = await this.ui.checkoutButton().isEnabled();
-            const continueEnabled = await this.ui.continueShoppingButton().isEnabled();
-
-            return { qtyText, descText, removeEnabled, checkoutEnabled, continueEnabled };
+            return {
+                qty,
+                description,
+                removeEnabled: await first.removeButton().isEnabled(),
+                checkoutEnabled: await this.ui.checkoutButton().isEnabled(),
+                continueEnabled: await this.ui.continueShoppingButton().isEnabled(),
+            };
         });
     }
 
-    async getFirstItemQtyAndDescription() {
-        const { qtyText, descText } = await this.getCartSnapshot();
-        return { qtyText, descText };
-    }
-
-    async getCartUIEnabledState() {
-        const { removeEnabled, checkoutEnabled, continueEnabled } = await this.getCartSnapshot();
-        return { removeEnabled, checkoutEnabled, continueEnabled };
-    }
 }
 
 module.exports = { CartPage };

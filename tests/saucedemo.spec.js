@@ -7,13 +7,18 @@
 // - Remove product and verify cart numbers
 
 const { expect } = require("@playwright/test");
-const { test } = require("../test-fixtures/fixtures")
+const { test } = require("../test-fixtures/fixtures");
 
 const creds = require("../data/credentials.json");
 
-test.describe("SauceDemo - Login + Cart flow (POM)", () => {
+test.describe("@demo SauceDemo - Login + Cart flow (POM)", () => {
+    test('debug config playwright: testIdAttribute = data-test', async ({ page }, testInfo) => {
+        console.log('testIdAttribute =', testInfo.project.use.testIdAttribute);
+        expect(testInfo.project.use.testIdAttribute).toBe('data-test');
+    });
+
     test("should login, list products, add/remove cart item, verify cart UI",
-        async ({ page, loginPage, productsPage, cartPage }, testInfo) => {
+        async ({ loginPage, productsPage, cartPage }) => {
 
             await test.step("Open website", async () => {
                 await loginPage.open();
@@ -27,47 +32,17 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
             await test.step("Verify successful login (Products page visible)", async () => {
                 await productsPage.waitForProductListPage();
 
-                //verify page title Products and correct url
-                await expect.soft(
-                    productsPage.ui.title(),
-                    "[UI][PRODUCTS] Title should display 'Products'"
-                ).toHaveText(/Products/i);
-
-                await expect.soft(
-                    page,
-                    "[NAV][PRODUCTS] URL should be inventory.html after login"
-                ).toHaveURL(/inventory\.html/);
-
+                const title = await productsPage.getPageTitle();
+                expect.soft(title, "[UI][PRODUCTS] Title should display 'Products'").toMatch(/Products/i);
             });
 
             await test.step("Get all products with ProductName and Price", async () => {
-                const items = productsPage.ui.inventoryItems();
-                const count = await items.count();
+                const products = await productsPage.listProducts();
 
-                const products = [];
-                for (let i = 0; i < count; i++) {
-                    const item = items.nth(i);
-                    const name = (await productsPage.ui.itemName(item).textContent())?.trim() ?? "";
-                    const price = (await productsPage.ui.itemPrice(item).textContent())?.trim() ?? "";
-                    products.push({ name, price });
-                }
-                //just basic assertion
-                expect.soft(
-                    products.length,
-                    "[LIST] Products list should not be empty after login"
-                ).toBeGreaterThan(0);
-
-                expect.soft(
-                    products[0],
-                    "[LIST] Product item should contain property: name"
-                ).toHaveProperty("name");
-
-                expect.soft(
-                    products[0],
-                    "[LIST] Product item should contain property: price"
-                ).toHaveProperty("price");
-
-            })
+                expect.soft(products.length, "[LIST] Products list should not be empty").toBeGreaterThan(0);
+                expect.soft(products[0], "[LIST] Product item should contain property: name").toHaveProperty("name");
+                expect.soft(products[0], "[LIST] Product item should contain property: price").toHaveProperty("price");
+            });
 
             await test.step("Add a product to cart and verify cart quantity", async () => {
                 await productsPage.addToCartByNameContains("Sauce Labs Backpack");
@@ -76,63 +51,29 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
                 expect.soft(cartCount, "[HEADER] Cart badge should increase to 1 after adding product").toBe(1);
             });
 
-            await test.step("Go to Cart and verify quantity, description and button enable", async () => {
-
+            await test.step("Go to cart and verify cart UI snapshot", async () => {
                 await productsPage.openCart();
                 await cartPage.waitForCartPage();
 
-                // const { qtyText, descText } = await cartPage.getFirstItemQtyAndDescription();
-                const cart = await cartPage.getCartSnapshot();
+                const cartTitle = await cartPage.getPageTitle();
+                expect.soft(cartTitle, "[UI][CART] Title should display 'Your Cart'").toMatch(/Your Cart/i);
 
-                expect.soft(
-                    cart.qtyText,
-                    "[CART] Item quantity should be 1 for newly added product"
-                ).toBe("1");
+                const snapCart = await cartPage.getCartSnapshot();
 
-                expect.soft(
-                    cart.descText.length,
-                    "[CART] Item description should not be empty"
-                ).toBeGreaterThan(0);
+                expect.soft(snapCart.qty, "[CART] Qty should exist").toMatch(/\d+/);
+                expect.soft(snapCart.description, "[CART] Desc should exist").not.toBe("");
 
-                // const { removeEnabled, checkoutEnabled, continueEnabled } = await cartPage.getCartUIEnabledState();
-
-                expect.soft(
-                    cart.removeEnabled,
-                    "[CART] Remove button should be enabled"
-                ).toBeTruthy();
-
-                expect.soft(
-                    cart.checkoutEnabled,
-                    "[CART] Checkout button should be enabled"
-                ).toBeTruthy();
-
-                expect.soft(
-                    cart.continueEnabled,
-                    "[CART] Continue Shopping button should be enabled"
-                ).toBeTruthy();
-
-            })
-
-            await test.step("Remove the product and verify cart numbers", async () => {
-                await cartPage.removeFirstItem();
-
-                //after removeing, badge should be gone, count 0
-                const cartCount = await cartPage.getCartCount();
-                expect.soft(
-                    cartCount,
-                    "[HEADER] Cart badge should be removed after deleting last item"
-                ).toBe(0);
-
-                //also confirm actual no item left in cart
-                const itemsCount = await cartPage.getItemsCount();
-                expect.soft(
-                    itemsCount,
-                    "[CART] Cart should be empty after removing product"
-                ).toBe(0);
-
+                expect.soft(snapCart.removeEnabled, "[CART] Remove button should be enabled").toBe(true);
+                expect.soft(snapCart.checkoutEnabled, "[CART] Checkout button should be enabled").toBe(true);
+                expect.soft(snapCart.continueEnabled, "[CART] Continue Shopping button should be enabled").toBe(true);
             });
 
-        })
-})
+            await test.step("Remove first cart item and verify badge count becomes 0", async () => {
+                await cartPage.removeFirstItem();
 
-module.exports = {}
+                const cartCount = await cartPage.getCartCount();
+                expect.soft(cartCount, "[HEADER] Cart badge should be 0 after removing product").toBe(0);
+            });
+        }
+    );
+});

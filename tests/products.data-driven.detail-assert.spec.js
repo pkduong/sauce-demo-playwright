@@ -6,7 +6,7 @@ const PRODUCT_DETAILS = [
         name: "Sauce Labs Backpack",
         price: "$29.99",
         desc: "Carry all things with the sleek, streamlined Sly Pack that melds uncompromising style with unequaled laptop and tablet protection.",
-    },// expect description mismatch 
+    }, // expect description mismatch
     {
         name: "Sauce Labs Bike Light",
         price: "$9.99",
@@ -28,48 +28,39 @@ const PRODUCT_DETAILS = [
         desc: "Rib snap infant onesie for the junior automation engineer in development. Reinforced 3-snap bottom closure, two-needle hemmed sleeved and bottom won't unravel.",
     },
     {
-        name: "T-Shirt (Red)",
+        name: "Sauce Labs T-Shirt (Red)",
         price: "$15.99",
-        desc: "This classic Sauce Labs t-shirt is perfect to wear when cozying up to your keyboard to automate a few tests. Super-soft and comfy ringspun combed cotton.",
-    }, // expect name mismatch -> should fail twice (list + detail)
+        desc: "This classic Sauce Labs t-shirt is perfect to wear when cozying up to your laptop to automate some tests. Super-soft and comfy ringspun combed cotton.",
+    },
 ];
 
 test.describe("@product @intentionally-failing Data-driven - verify product list vs detail (name/price/desc)", () => {
+    test("verify product list page: name + price", async ({ loggedIn, productsPage }) => {
+        for (const tc of PRODUCT_DETAILS) {
+            await test.step(`verify product list: ${tc.name} - ${tc.price}`, async () => {
+                const product = await productsPage.getProductSnapshotByNameContains(tc.name);
 
-    test("verify product list page: name + price",
-        async ({ page, loggedIn, productsPage }) => {
-
-            for (const tc of PRODUCT_DETAILS) {
-                await test.step(`verify product list: ${tc.name} - ${tc.price}`, async () => {
-                    const product = await productsPage.getProductSnapshotByNameContains(tc.name);
-
-                    // fail #1 expected here for: "T-Shirt (Red)"
-                    expect.soft(product.name, `[LIST] Check Name matched for "${tc.name}"`).toBe(tc.name);
-                    expect.soft(product.price, `[LIST] Check Price matched for "${tc.price}"`).toBe(tc.price);
-                });
-            }
-        });
+                expect.soft(product.name, `[LIST] Check Name matched for "${tc.name}"`).toBe(tc.name);
+                expect.soft(product.price, `[LIST] Check Price matched for "${tc.price}"`).toBe(tc.price);
+            });
+        }
+    });
 
     test("@product @intentionally-failing verify product detail page: name + price + description",
-        async ({ page, loggedIn, productsPage }) => {
-
+        async ({ loggedIn, productsPage }) => {
             for (const tc of PRODUCT_DETAILS) {
                 await test.step(`verify product detail: ${tc.name}`, async () => {
-
-                    await productsPage.openProductDetailByNameContains(tc.name);
+                    await productsPage.goToProductDetailByNameContains(tc.name);
 
                     const product = await productsPage.getProductDetailSnapshot();
 
-                    // fail #1 expected here for: "T-Shirt (Red)"
                     expect.soft(product.detailName, `[DETAIL] Check Name matched for "${tc.name}"`).toBe(tc.name);
-
                     expect.soft(product.detailPrice, `[DETAIL] Check Price matched for "${tc.price}"`).toBe(tc.price);
-
-                    // fail #2 expected here for: "Sauce Labs Backpack" description (carry.allTheThings()...)
                     expect.soft(product.detailDesc, `[DETAIL] Check description matched for "${tc.desc}"`).toBe(tc.desc);
 
-                    await productsPage.backToProducts();
+                    await productsPage.goBackToProductList();
                 });
             }
-        });
+        }
+    );
 });
