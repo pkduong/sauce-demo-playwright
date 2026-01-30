@@ -1,0 +1,41 @@
+{"ts":"2026-01-30T07:21:42.846Z","msg":"START: login.open","url":"about:blank"}
+{"ts":"2026-01-30T07:21:42.847Z","msg":"START: goto","url":"about:blank","path":"/"}
+{"ts":"2026-01-30T07:21:43.077Z","msg":"END: goto","url":"https://www.saucedemo.com/","path":"/"}
+{"ts":"2026-01-30T07:21:43.078Z","msg":"START: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:43.177Z","msg":"END: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:43.177Z","msg":"Login page ready","url":"https://www.saucedemo.com/","title":"Swag Labs"}
+{"ts":"2026-01-30T07:21:43.178Z","msg":"END: login.open","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:43.180Z","msg":"START: login.submit","url":"https://www.saucedemo.com/","username":"standard_user"}
+{"ts":"2026-01-30T07:21:43.181Z","msg":"START: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:43.236Z","msg":"END: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:43.236Z","msg":"START: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:43.272Z","msg":"END: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:43.396Z","msg":"END: login.submit","url":"https://www.saucedemo.com/inventory.html","username":"standard_user"}
+{"ts":"2026-01-30T07:21:43.398Z","msg":"START: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:43.421Z","msg":"END: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:43.577Z","msg":"START: products.addToCartByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:43.577Z","msg":"START: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:43.586Z","msg":"END: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:43.587Z","msg":"START: products.clickAddToCart","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:43.657Z","msg":"END: products.clickAddToCart","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:43.657Z","msg":"END: products.addToCartByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:43.657Z","msg":"START: products.getCartCount","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:43.670Z","msg":"END: products.getCartCount","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:43.673Z","msg":"START: products.openCart","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:43.763Z","msg":"END: products.openCart","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.763Z","msg":"START: cart.waitForCartPage","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.781Z","msg":"END: cart.waitForCartPage","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.781Z","msg":"START: cart.getCartSnapshot","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.841Z","msg":"END: cart.getCartSnapshot","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.848Z","msg":"START: cart.removeFirstItem","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.848Z","msg":"START: cart.getFirstItem","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.857Z","msg":"END: cart.getFirstItem","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.857Z","msg":"START: cart.clickRemoveFirstItem","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.892Z","msg":"END: cart.clickRemoveFirstItem","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.892Z","msg":"END: cart.removeFirstItem","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.892Z","msg":"START: cart.getCartCount","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.897Z","msg":"Cart badge not visible, count = 0","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.897Z","msg":"END: cart.getCartCount","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.899Z","msg":"START: cart.getItemsCount","url":"https://www.saucedemo.com/cart.html"}
+{"ts":"2026-01-30T07:21:43.903Z","msg":"Cart item count","url":"https://www.saucedemo.com/cart.html","count":0}
+{"ts":"2026-01-30T07:21:43.903Z","msg":"END: cart.getItemsCount","url":"https://www.saucedemo.com/cart.html"}

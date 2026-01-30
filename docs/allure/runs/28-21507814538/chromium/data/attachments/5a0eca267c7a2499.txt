@@ -1,0 +1,39 @@
+{"ts":"2026-01-30T07:21:39.667Z","msg":"START: login.open","url":"about:blank"}
+{"ts":"2026-01-30T07:21:39.669Z","msg":"START: goto","url":"about:blank","path":"/"}
+{"ts":"2026-01-30T07:21:39.961Z","msg":"END: goto","url":"https://www.saucedemo.com/","path":"/"}
+{"ts":"2026-01-30T07:21:39.967Z","msg":"START: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:40.142Z","msg":"END: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:40.142Z","msg":"Login page ready","url":"https://www.saucedemo.com/","title":"Swag Labs"}
+{"ts":"2026-01-30T07:21:40.142Z","msg":"END: login.open","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:40.143Z","msg":"START: login.submit","url":"https://www.saucedemo.com/","username":"standard_user"}
+{"ts":"2026-01-30T07:21:40.143Z","msg":"START: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:40.237Z","msg":"END: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:40.237Z","msg":"START: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:40.323Z","msg":"END: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:40.505Z","msg":"END: login.submit","url":"https://www.saucedemo.com/inventory.html","username":"standard_user"}
+{"ts":"2026-01-30T07:21:40.505Z","msg":"START: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:40.538Z","msg":"END: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:40.542Z","msg":"START: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:40.543Z","msg":"START: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:40.579Z","msg":"END: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:40.596Z","msg":"END: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Backpack"}
+{"ts":"2026-01-30T07:21:40.600Z","msg":"START: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bike Light"}
+{"ts":"2026-01-30T07:21:40.600Z","msg":"START: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bike Light"}
+{"ts":"2026-01-30T07:21:40.607Z","msg":"END: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bike Light"}
+{"ts":"2026-01-30T07:21:40.621Z","msg":"END: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bike Light"}
+{"ts":"2026-01-30T07:21:40.624Z","msg":"START: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:40.624Z","msg":"START: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:40.642Z","msg":"END: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:40.661Z","msg":"END: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:40.664Z","msg":"START: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Fleece Jacket"}
+{"ts":"2026-01-30T07:21:40.665Z","msg":"START: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Fleece Jacket"}
+{"ts":"2026-01-30T07:21:40.676Z","msg":"END: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Fleece Jacket"}
+{"ts":"2026-01-30T07:21:40.693Z","msg":"END: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Fleece Jacket"}
+{"ts":"2026-01-30T07:21:40.697Z","msg":"START: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Onesie"}
+{"ts":"2026-01-30T07:21:40.697Z","msg":"START: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Onesie"}
+{"ts":"2026-01-30T07:21:40.721Z","msg":"END: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Onesie"}
+{"ts":"2026-01-30T07:21:40.751Z","msg":"END: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Onesie"}
+{"ts":"2026-01-30T07:21:40.759Z","msg":"START: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"T-Shirt (Red)"}
+{"ts":"2026-01-30T07:21:40.759Z","msg":"START: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"T-Shirt (Red)"}
+{"ts":"2026-01-30T07:21:40.781Z","msg":"END: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"T-Shirt (Red)"}
+{"ts":"2026-01-30T07:21:40.812Z","msg":"END: products.getProductSnapshotByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"T-Shirt (Red)"}

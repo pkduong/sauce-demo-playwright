@@ -1,0 +1,47 @@
+{"ts":"2026-01-30T07:21:43.184Z","msg":"START: login.open","url":"about:blank"}
+{"ts":"2026-01-30T07:21:43.184Z","msg":"START: goto","url":"about:blank","path":"/"}
+{"ts":"2026-01-30T07:21:43.459Z","msg":"END: goto","url":"https://www.saucedemo.com/","path":"/"}
+{"ts":"2026-01-30T07:21:43.459Z","msg":"START: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:43.552Z","msg":"END: login.waitForLogo","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:43.552Z","msg":"Login page ready","url":"https://www.saucedemo.com/","title":"Swag Labs"}
+{"ts":"2026-01-30T07:21:43.552Z","msg":"END: login.open","url":"https://www.saucedemo.com/"}
+{"ts":"2026-01-30T07:21:43.553Z","msg":"START: login.submit","url":"https://www.saucedemo.com/","username":"standard_user"}
+{"ts":"2026-01-30T07:21:43.554Z","msg":"START: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:43.609Z","msg":"END: login.fillUsername","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:43.610Z","msg":"START: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:43.634Z","msg":"END: login.fillPassword","url":"https://www.saucedemo.com/","valueMasked":"***"}
+{"ts":"2026-01-30T07:21:43.737Z","msg":"END: login.submit","url":"https://www.saucedemo.com/inventory.html","username":"standard_user"}
+{"ts":"2026-01-30T07:21:43.737Z","msg":"START: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:43.761Z","msg":"END: products.waitForProductListPage","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:43.764Z","msg":"START: products.openProductDetailByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:43.788Z","msg":"START: products.clickProductName","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:43.832Z","msg":"END: products.clickProductName","url":"https://www.saucedemo.com/inventory-item.html?id=1","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:43.843Z","msg":"END: products.openProductDetailByNameContains","url":"https://www.saucedemo.com/inventory-item.html?id=1","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:43.843Z","msg":"START: products.getProductDetailSnapshot","url":"https://www.saucedemo.com/inventory-item.html?id=1"}
+{"ts":"2026-01-30T07:21:43.871Z","msg":"END: products.getProductDetailSnapshot","url":"https://www.saucedemo.com/inventory-item.html?id=1"}
+{"ts":"2026-01-30T07:21:43.877Z","msg":"START: products.backToProducts","url":"https://www.saucedemo.com/inventory-item.html?id=1"}
+{"ts":"2026-01-30T07:21:43.945Z","msg":"END: products.backToProducts","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:43.971Z","msg":"START: products.openProductDetailByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Fleece Jacket"}
+{"ts":"2026-01-30T07:21:43.986Z","msg":"START: products.clickProductName","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Fleece Jacket"}
+{"ts":"2026-01-30T07:21:44.026Z","msg":"END: products.clickProductName","url":"https://www.saucedemo.com/inventory-item.html?id=5","name":"Sauce Labs Fleece Jacket"}
+{"ts":"2026-01-30T07:21:44.032Z","msg":"END: products.openProductDetailByNameContains","url":"https://www.saucedemo.com/inventory-item.html?id=5","name":"Sauce Labs Fleece Jacket"}
+{"ts":"2026-01-30T07:21:44.032Z","msg":"START: products.getProductDetailSnapshot","url":"https://www.saucedemo.com/inventory-item.html?id=5"}
+{"ts":"2026-01-30T07:21:44.051Z","msg":"END: products.getProductDetailSnapshot","url":"https://www.saucedemo.com/inventory-item.html?id=5"}
+{"ts":"2026-01-30T07:21:44.053Z","msg":"START: products.backToProducts","url":"https://www.saucedemo.com/inventory-item.html?id=5"}
+{"ts":"2026-01-30T07:21:44.094Z","msg":"END: products.backToProducts","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:44.106Z","msg":"START: products.openProductDetailByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"T-Shirt (Red)"}
+{"ts":"2026-01-30T07:21:44.113Z","msg":"START: products.clickProductName","url":"https://www.saucedemo.com/inventory.html","name":"T-Shirt (Red)"}
+{"ts":"2026-01-30T07:21:44.158Z","msg":"END: products.clickProductName","url":"https://www.saucedemo.com/inventory-item.html?id=3","name":"T-Shirt (Red)"}
+{"ts":"2026-01-30T07:21:44.162Z","msg":"END: products.openProductDetailByNameContains","url":"https://www.saucedemo.com/inventory-item.html?id=3","name":"T-Shirt (Red)"}
+{"ts":"2026-01-30T07:21:44.162Z","msg":"START: products.getProductDetailSnapshot","url":"https://www.saucedemo.com/inventory-item.html?id=3"}
+{"ts":"2026-01-30T07:21:44.181Z","msg":"END: products.getProductDetailSnapshot","url":"https://www.saucedemo.com/inventory-item.html?id=3"}
+{"ts":"2026-01-30T07:21:44.183Z","msg":"START: products.backToProducts","url":"https://www.saucedemo.com/inventory-item.html?id=3"}
+{"ts":"2026-01-30T07:21:44.227Z","msg":"END: products.backToProducts","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:44.239Z","msg":"START: products.addToCartByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:44.239Z","msg":"START: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:44.246Z","msg":"END: products.getCardByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:44.246Z","msg":"START: products.clickAddToCart","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:44.289Z","msg":"END: products.clickAddToCart","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:44.289Z","msg":"END: products.addToCartByNameContains","url":"https://www.saucedemo.com/inventory.html","name":"Sauce Labs Bolt T-Shirt"}
+{"ts":"2026-01-30T07:21:44.289Z","msg":"START: products.getCartCount","url":"https://www.saucedemo.com/inventory.html"}
+{"ts":"2026-01-30T07:21:44.296Z","msg":"END: products.getCartCount","url":"https://www.saucedemo.com/inventory.html"}
