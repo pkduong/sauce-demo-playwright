@@ -8,6 +8,11 @@ class BasePage {
         this.testInfo = testInfo;
     }
 
+    within(root, builder) {
+        // builder receives root and returns locators/actions bound to root
+        return builder(root);
+    }
+
     log(message, meta = {}) {
         const ts = new Date().toISOString();
         // Structured log = easier to grep on CI

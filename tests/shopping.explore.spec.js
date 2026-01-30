@@ -40,12 +40,12 @@ test.describe("@explore @cart Simulate shopping behavior - explore details then 
 
                         // verify user is back on Products page
                         await expect.soft(
-                            productsPage.title,
+                            productsPage.ui.title(),
                             "[NAV][PRODUCTS] Should return to Products page after clicking Back"
                         ).toHaveText(/Products/i);
 
                         await expect.soft(
-                            productsPage.inventoryItems.first(),
+                            productsPage.ui.inventoryItems().first(),
                             "[LIST][PRODUCTS] Product list should be visible after returning from detail page"
                         ).toBeVisible();
                     }

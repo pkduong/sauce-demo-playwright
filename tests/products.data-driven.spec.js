@@ -16,15 +16,11 @@ test.describe("@demo @intentionally-failing Data-driven - verify product name + 
 
             for (const tc of PRODUCT_LIST) {
                 await test.step(`verify product list: ${tc.name} - ${tc.price}`, async () => {
-                    const item = await productsPage.findProductByNameContains(tc.name);
-
-                    const product = productsPage.getProductItem(item);
-                    const actualName = (await product.name.textContent());
-                    const actualPrice = (await product.price.textContent());
+                    const product = await productsPage.getProductSnapshotByNameContains(tc.name);
 
                     // assertion, expect to have failed on the last item T-Shirt (Red)
-                    expect.soft(actualName, `Check Name matched for "${tc.name}"`).toBe(tc.name);
-                    expect.soft(actualPrice, `Check Price matched for "${tc.price}"`).toBe(tc.price);
+                    expect.soft(product.name, `Check Name matched for "${tc.name}"`).toBe(tc.name);
+                    expect.soft(product.price, `Check Price matched for "${tc.price}"`).toBe(tc.price);
                 });
             }
         });

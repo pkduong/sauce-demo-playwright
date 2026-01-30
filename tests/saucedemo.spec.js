@@ -29,7 +29,7 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
 
                 //verify page title Products and correct url
                 await expect.soft(
-                    productsPage.title,
+                    productsPage.ui.title(),
                     "[UI][PRODUCTS] Title should display 'Products'"
                 ).toHaveText(/Products/i);
 
@@ -41,9 +41,16 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
             });
 
             await test.step("Get all products with ProductName and Price", async () => {
-                const products = await productsPage.getAllProducts();
-                console.log(`PRODUCTS: `, products);
+                const items = productsPage.ui.inventoryItems();
+                const count = await items.count();
 
+                const products = [];
+                for (let i = 0; i < count; i++) {
+                    const item = items.nth(i);
+                    const name = (await productsPage.ui.itemName(item).textContent())?.trim() ?? "";
+                    const price = (await productsPage.ui.itemPrice(item).textContent())?.trim() ?? "";
+                    products.push({ name, price });
+                }
                 //just basic assertion
                 expect.soft(
                     products.length,
@@ -62,16 +69,12 @@ test.describe("SauceDemo - Login + Cart flow (POM)", () => {
 
             })
 
-            await test.step("Add any product in cart an verify cart quantity", async () => {
-                await productsPage.addFirstProductToCart();
+            await test.step("Add a product to cart and verify cart quantity", async () => {
+                await productsPage.addToCartByNameContains("Sauce Labs Backpack");
+
                 const cartCount = await productsPage.getCartCount();
-
-                expect.soft(
-                    cartCount,
-                    "[HEADER] Cart badge should increase to 1 after adding product"
-                ).toBe(1);
-
-            })
+                expect.soft(cartCount, "[HEADER] Cart badge should increase to 1 after adding product").toBe(1);
+            });
 
             await test.step("Go to Cart and verify quantity, description and button enable", async () => {
 
