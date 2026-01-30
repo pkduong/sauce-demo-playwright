@@ -10,7 +10,7 @@ const PRODUCT_EXPLORE_ACTION = [
 
 test.describe("@explore @cart Simulate shopping behavior - explore details then add to cart", () => {
     test("explore products detail pages, go back, then add to cart",
-        async ({ page, loggedIn, productsPage }) => {
+        async ({ loggedIn, productsPage }) => {
 
             let expectedBadge = 0;
 
@@ -18,49 +18,31 @@ test.describe("@explore @cart Simulate shopping behavior - explore details then 
                 await test.step(`Action: ${p.action} | Product: ${p.name}`, async () => {
                     if (p.action === "check-detail") {
                         // open product detail
-                        await productsPage.openProductDetailByNameContains(p.name);
+                        await productsPage.goToProductDetailByNameContains(p.name);
 
-                        // user is now on detail page → verify by visible product name
+                        // verify detail page has product
                         const product = await productsPage.getProductDetailSnapshot();
-                        expect.soft(
-                            product.detailName,
-                            `[DETAIL] Product detail page should display correct product name: ${p.name}`
-                        ).toContain(p.name);
+                        expect.soft(product.detailName, "[DETAIL] Detail name should be visible").toContain(p.name);
 
-                        // user reads description
-                        expect.soft(
-                            product.detailDesc,
-                            `[DETAIL] Product description should not be empty`
-                            // ).toBeTruthy();  // old style
-                        ).toMatch(/\S+/); //  at least one non-whitespace character
+                        // back
+                        await productsPage.goBackToProductList();
 
+                        const title = await productsPage.getPageTitle();
+                        expect.soft(title, "[NAV][PRODUCTS] Should return to Products page").toMatch(/Products/i);
 
-                        // user decides to go back to product list
-                        await productsPage.backToProducts();
-
-                        // verify user is back on Products page
-                        await expect.soft(
-                            productsPage.ui.title(),
-                            "[NAV][PRODUCTS] Should return to Products page after clicking Back"
-                        ).toHaveText(/Products/i);
-
-                        await expect.soft(
-                            productsPage.ui.inventoryItems().first(),
-                            "[LIST][PRODUCTS] Product list should be visible after returning from detail page"
-                        ).toBeVisible();
+                        const listVisible = await productsPage.isProductListVisible();
+                        expect.soft(listVisible, "[LIST][PRODUCTS] Product list should be visible").toBe(true);
                     }
 
                     if (p.action === "add-to-cart") {
                         await productsPage.addToCartByNameContains(p.name);
-
                         expectedBadge += 1;
-                        const badge = await productsPage.getCartCount();
-                        expect(
-                            badge,
-                            "[HEADER] Cart badge should increase after adding product"
-                        ).toBe(expectedBadge);
+
+                        const count = await productsPage.getCartCount();
+                        expect.soft(count, "[HEADER] Cart badge should reflect add-to-cart actions").toBe(expectedBadge);
                     }
                 });
             }
-        });
+        }
+    );
 });

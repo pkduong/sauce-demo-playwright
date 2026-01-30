@@ -28,20 +28,19 @@ class CartUI {
     }
 
     // Item scoped locators (require root)
-    itemQty(root) {
+    qty(root) {
         return root.locator(".cart_quantity");
     }
 
-    itemDesc(root) {
+    description(root) {
         return root.locator(".inventory_item_desc");
     }
 
-    itemName(root) {
+    name(root) {
         return root.locator(".inventory_item_name");
     }
 
-    itemRemoveButton(root) {
-        // Use role/name when possible; demo app supports it fine
+    removeButton(root) {
         return root.getByRole("button", { name: /remove/i });
     }
 

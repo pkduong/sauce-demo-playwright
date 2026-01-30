@@ -28,12 +28,13 @@ class LoginPage extends BasePage {
         return this.withAction(
             "login.submit",
             async () => {
-                await this.safeFill(this.ui.usernameInput(), username, "login.fillUsername");
-                await this.safeFill(this.ui.passwordInput(), password, "login.fillPassword");
+                // username is not sensitive, password is
+                await this.safeFillPlain(this.ui.usernameInput(), username, "login.fillUsername");
+                await this.safeFillSensitive(this.ui.passwordInput(), password, "login.fillPassword");
 
                 await Promise.all([
                     this.page.waitForURL(/inventory\.html/),
-                    this.ui.loginButton().click(),
+                    this.safeClick(this.ui.loginButton(), "login.clickLogin"),
                 ]);
             },
             { username }
@@ -44,13 +45,13 @@ class LoginPage extends BasePage {
         return this.withAction(
             "login.submitExpectError",
             async () => {
-                await this.safeFill(this.ui.usernameInput(), username, "login.fillUsername");
-                await this.safeFill(this.ui.passwordInput(), password, "login.fillPassword");
+                await this.safeFillPlain(this.ui.usernameInput(), username, "login.fillUsername");
+                await this.safeFillSensitive(this.ui.passwordInput(), password, "login.fillPassword");
+                await this.safeClick(this.ui.loginButton(), "login.clickLogin");
 
-                await this.ui.loginButton().click();
+                // Expect error message to appear on same page
                 await this.ui.errorMessage().waitFor({ state: "visible" });
-
-                return (await this.ui.errorMessage().textContent())?.trim() ?? "";
+                return (await this.ui.errorMessage().textContent())?.trim();
             },
             { username }
         );
@@ -60,10 +61,9 @@ class LoginPage extends BasePage {
         return this.withAction("login.getErrorTextIfAny", async () => {
             const err = this.ui.errorMessage();
             if (await err.count()) {
-                const visible = await err.isVisible().catch(() => false);
-                if (visible) return (await err.textContent())?.trim() ?? "";
+                return (await err.textContent())?.trim();
             }
-            return "";
+            return null;
         });
     }
 }

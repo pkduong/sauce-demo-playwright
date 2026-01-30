@@ -12,6 +12,9 @@ class ProductsPage extends BasePage {
         this.ui = new ProductsUI(page);
     }
 
+    // -----------------------------
+    // Page state / queries (small API for tests)
+    // -----------------------------
     async waitForProductListPage() {
         return this.withAction("products.waitForProductListPage", async () => {
             await this.ui.title().waitFor({ state: "visible" });
@@ -19,6 +22,42 @@ class ProductsPage extends BasePage {
         });
     }
 
+    async getPageTitle() {
+        return this.withAction("products.getPageTitle", async () => {
+            const text = (await this.ui.title().textContent()) ?? "";
+            return text.trim();
+        });
+    }
+
+    async isProductListVisible() {
+        return this.withAction("products.isProductListVisible", async () => {
+            return await this.ui.inventoryItems().first().isVisible();
+        });
+    }
+
+    async listProducts() {
+        return this.withAction("products.listProducts", async () => {
+            const items = this.ui.inventoryItems();
+            const count = await items.count();
+            const out = [];
+
+            for (let i = 0; i < count; i++) {
+                const root = items.nth(i);
+                const card = new ProductCard(root, this.ui);
+
+                const name = ((await card.name().textContent()) ?? "").trim();
+                const price = ((await card.price().textContent()) ?? "").trim();
+
+                out.push({ name, price });
+            }
+
+            return out;
+        });
+    }
+
+    // -----------------------------
+    // Navigation / header
+    // -----------------------------
     async openCart() {
         return this.withAction("products.openCart", async () => {
             await Promise.all([
@@ -29,16 +68,12 @@ class ProductsPage extends BasePage {
     }
 
     async getCartCount() {
-        return this.withAction("products.getCartCount", async () => {
-            const badge = this.ui.cartBadge();
-            if (await badge.count()) {
-                const text = (await badge.textContent())?.trim();
-                return text ? Number(text) : 0;
-            }
-            return 0;
-        });
+        return this.readOptionalInt(this.ui.cartBadge(), 0, "products.getCartCount");
     }
 
+    // -----------------------------
+    // Product-level helpers (using Component Object)
+    // -----------------------------
     async getCardByNameContains(name) {
         return this.withAction("products.getCardByNameContains", async () => {
             const root = this.ui.itemByNameContains(name);
@@ -51,49 +86,56 @@ class ProductsPage extends BasePage {
         return this.withAction("products.getProductSnapshotByNameContains", async () => {
             const card = await this.getCardByNameContains(name);
             return {
-                name: (await card.name().textContent())?.trim() ?? "",
-                price: (await card.price().textContent())?.trim() ?? "",
+                name: ((await card.name().textContent()) ?? "").trim(),
+                price: ((await card.price().textContent()) ?? "").trim(),
             };
         }, { name });
     }
 
-    async addToCartByNameContains(name) {
-        return this.withAction("products.addToCartByNameContains", async () => {
+    async goToProductDetailByNameContains(name) {
+        return this.withAction("products.goToProductDetailByNameContains", async () => {
             const card = await this.getCardByNameContains(name);
-            await this.safeClick(card.add(), "products.clickAddToCart", { name });
+
+            await Promise.all([
+                this.page.waitForURL(/inventory-item\.html/),
+                card.name().click(),
+            ]);
         }, { name });
     }
 
-    async openProductDetailByNameContains(name) {
-        return this.withAction("products.openProductDetailByNameContains", async () => {
-            const root = this.ui.itemByNameContains(name);
-            await root.waitFor({ state: "visible" });
-
-            await this.safeClick(this.ui.itemName(root), "products.clickProductName", { name });
-            await this.ui.detailName().waitFor({ state: "visible" });
-            await this.page.waitForURL(/inventory-item\.html/);
-        }, { name });
+    async goBackToProductList() {
+        return this.withAction("products.goBackToProductList", async () => {
+            await Promise.all([
+                this.page.waitForURL(/inventory\.html/),
+                this.ui.backToProductsButton().click(),
+            ]);
+        });
     }
 
     async getProductDetailSnapshot() {
         return this.withAction("products.getProductDetailSnapshot", async () => {
             await this.ui.detailName().waitFor({ state: "visible" });
 
-            const detailName = (await this.ui.detailName().textContent())?.trim() ?? "";
-            const detailPrice = (await this.ui.detailPrice().textContent())?.trim() ?? "";
-            const detailDesc = (await this.ui.detailDesc().textContent())?.trim() ?? "";
-
-            return { detailName, detailPrice, detailDesc };
+            return {
+                detailName: ((await this.ui.detailName().textContent()) ?? "").trim(),
+                detailPrice: ((await this.ui.detailPrice().textContent()) ?? "").trim(),
+                detailDesc: ((await this.ui.detailDesc().textContent()) ?? "").trim(),
+            };
         });
     }
 
-    async backToProducts() {
-        return this.withAction("products.backToProducts", async () => {
-            await Promise.all([
-                this.page.waitForURL(/inventory\.html/),
-                this.ui.backToProducts().click(),
-            ]);
-        });
+    async addToCartByNameContains(name) {
+        return this.withAction("products.addToCartByNameContains", async () => {
+            const card = await this.getCardByNameContains(name);
+            await card.add().click();
+        }, { name });
+    }
+
+    async removeFromCartByNameContains(name) {
+        return this.withAction("products.removeFromCartByNameContains", async () => {
+            const card = await this.getCardByNameContains(name);
+            await card.remove().click();
+        }, { name });
     }
 }
 
