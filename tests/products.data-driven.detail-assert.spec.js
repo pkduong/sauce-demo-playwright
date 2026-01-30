@@ -41,9 +41,7 @@ test.describe("@product @intentionally-failing Data-driven - verify product list
 
             for (const tc of PRODUCT_DETAILS) {
                 await test.step(`verify product list: ${tc.name} - ${tc.price}`, async () => {
-                    const item = await productsPage.findProductByNameContains(tc.name);
-
-                    const product = await productsPage.getProductItemSnapshot(item);
+                    const product = await productsPage.getProductSnapshotByNameContains(tc.name);
 
                     // fail #1 expected here for: "T-Shirt (Red)"
                     expect.soft(product.name, `[LIST] Check Name matched for "${tc.name}"`).toBe(tc.name);
